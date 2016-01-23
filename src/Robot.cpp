@@ -4,7 +4,9 @@ class Robot: public IterativeRobot
 {
 	Talon *lDrive = new Talon(0);
 	Talon *rDrive = new Talon(1);
-	Solenoid *piston = new Solenoid(0);
+	Talon *arm1 = new Talon(2);
+	Talon *arm2 = new Talon (3);
+	Solenoid *piston1 = new Solenoid(0);
 	Solenoid *piston2 = new Solenoid(1);
 	Joystick *driveStick = new Joystick(0);
 	Joystick *manipulatorStick = new Joystick(1);
@@ -104,12 +106,30 @@ private:
 		rDrive->Set(leftY + leftX);
 
 		if(driveStick->GetRawButton(3)) {
-			piston->Set(1);
+			piston1->Set(1);
 			piston2->Set(1);
 		} else if(driveStick->GetRawButton(2)) {
-			piston->Set(0);
+			piston1->Set(0);
 			piston2->Set(0);
 		}
+
+
+
+		if(manipulatorStick->GetRawButton(6)) {
+			arm1->Set(mRightY);
+		} else if(driveStick->GetRawButton(6)) {
+			arm1->Set(rightY);
+		} else {
+			arm1 = 0;
+		}
+		if(manipulatorStick->GetRawButton(5)) {
+			arm2->Set(mLeftY);
+		} else if(driveStick->GetRawButton(5)) {
+			arm2->Set(rightY);
+		} else {
+			arm2 = 0;
+		}
+
 	}
 
 	void TestPeriodic()
