@@ -64,7 +64,11 @@ private:
 	void AutonomousPeriodic()
 	{
 		if(autoSelected == autoNameCustom){
-			//Custom Auto goes here
+			lDrive->Set(.475);
+			rDrive->Set(.475);
+			Wait(4);
+			lDrive->Set(0);
+			rDrive->Set(0);
 		} else {
 			//Default Auto goes here
 		}
