@@ -6,6 +6,7 @@ class Robot: public IterativeRobot
 	Talon *rDrive = new Talon(1);
 	Talon *arm1 = new Talon(2);
 	Talon *arm2 = new Talon (3);
+	Ultrasonic *sonic = new Ultrasonic(4);
 	Solenoid *piston1 = new Solenoid(0);
 	Solenoid *piston2 = new Solenoid(1);
 	Joystick *driveStick = new Joystick(0);
