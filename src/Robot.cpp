@@ -4,7 +4,8 @@ class Robot: public IterativeRobot
 {
 	Talon *lDrive = new Talon(0);
 	Talon *rDrive = new Talon(1);
-	Solenoid *piston = new Solenoid(2);
+	Solenoid *piston = new Solenoid(0);
+	Solenoid *piston2 = new Solenoid(1);
 	Joystick *driveStick = new Joystick(0);
 	Joystick *manipulatorStick = new Joystick(1);
 
@@ -104,8 +105,10 @@ private:
 
 		if(driveStick->GetRawButton(3)) {
 			piston->Set(1);
+			piston2->Set(1);
 		} else if(driveStick->GetRawButton(2)) {
 			piston->Set(0);
+			piston2->Set(0);
 		}
 	}
 
