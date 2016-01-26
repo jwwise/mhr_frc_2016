@@ -8,8 +8,8 @@ class Robot: public IterativeRobot
 	CANTalon *rDrive2;
 	CANTalon *arm1;
 	CANTalon *arm2;
-	Solenoid *lShifter;
-	Solenoid *rShifter;
+	DoubleSolenoid *lShifter;
+	DoubleSolenoid *rShifter;
 	Joystick *driveStick;
 	Joystick *manipulatorStick;
 
@@ -23,8 +23,8 @@ public:
 		rDrive2 = new CANTalon(4);
 		arm1 = new CANTalon(5);
 		arm2 = new CANTalon(6);
-		lShifter = new Solenoid(0);
-		rShifter = new Solenoid(1);
+		lShifter = new DoubleSolenoid(0,1);
+		rShifter = new DoubleSolenoid(2,3);
 		driveStick = new Joystick(0);
 		manipulatorStick = new Joystick(1);
 	}
@@ -134,11 +134,11 @@ private:
 		rDrive2->Set(leftY + leftX);
 
 		if(driveStick->GetRawButton(3)) {
-			lShifter->Set(true);
-			rShifter->Set(true);
+			lShifter->Set(DoubleSolenoid::Value::kForward);
+			rShifter->Set(DoubleSolenoid::Value::kForward);
 		} else if(driveStick->GetRawButton(2)) {
-			lShifter->Set(false);
-			rShifter->Set(false);
+			lShifter->Set(DoubleSolenoid::Value::kReverse);
+			rShifter->Set(DoubleSolenoid::Value::kReverse);
 		}
 
 
