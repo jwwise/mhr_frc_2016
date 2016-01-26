@@ -2,15 +2,32 @@
 
 class Robot: public IterativeRobot
 {
-	Talon *lDrive = new Talon(0);
-	Talon *rDrive = new Talon(1);
-	Talon *arm1 = new Talon(2);
-	Talon *arm2 = new Talon (3);
-	Ultrasonic *sonic = new Ultrasonic(4);
-	Solenoid *piston1 = new Solenoid(0);
-	Solenoid *piston2 = new Solenoid(1);
-	Joystick *driveStick = new Joystick(0);
-	Joystick *manipulatorStick = new Joystick(1);
+	CANTalon *lDrive1;
+	CANTalon *lDrive2;
+	CANTalon *rDrive1;
+	CANTalon *rDrive2;
+	CANTalon *arm1;
+	CANTalon *arm2;
+	Solenoid *lShifter;
+	Solenoid *rShifter;
+	Joystick *driveStick;
+	Joystick *manipulatorStick;
+
+//potatoes
+public:
+	Robot() {
+		Wait(1);
+		lDrive1 = new CANTalon(1);
+		lDrive2 = new CANTalon(2);
+		rDrive1 = new CANTalon(3);
+		rDrive2 = new CANTalon(4);
+		arm1 = new CANTalon(5);
+		arm2 = new CANTalon(6);
+		lShifter = new Solenoid(0);
+		rShifter = new Solenoid(1);
+		driveStick = new Joystick(0);
+		manipulatorStick = new Joystick(1);
+	}
 
 
 private:
@@ -29,7 +46,7 @@ private:
 	double rightTrigger = 0;
 	double threshold = 0.1;
 
-	void RobotInit()
+	void RobotInit() override
 	{
 		/*chooser = new SendableChooser();
 		chooser->AddDefault(autoNameDefault, (void*)&autoNameDefault);
@@ -65,11 +82,15 @@ private:
 	void AutonomousPeriodic()
 	{
 		if(autoSelected == autoNameCustom){
-			lDrive->Set(.475);
-			rDrive->Set(.475);
+			lDrive1->Set(.475);
+			rDrive1->Set(.475);
+			lDrive2->Set(.475);
+			rDrive2->Set(.475);
 			Wait(4);
-			lDrive->Set(0);
-			rDrive->Set(0);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
 		} else {
 			//Default Auto goes here
 		}
@@ -107,15 +128,17 @@ private:
 		if(fabs(rightTrigger) < (threshold))
 			rightTrigger = 0;
 
-		lDrive->Set(-(leftY - leftX));
-		rDrive->Set(leftY + leftX);
+		lDrive1->Set(-(leftY - leftX));
+		lDrive1->Set(-(leftY - leftX));
+		rDrive2->Set(leftY + leftX);
+		rDrive2->Set(leftY + leftX);
 
 		if(driveStick->GetRawButton(3)) {
-			piston1->Set(1);
-			piston2->Set(1);
+			lShifter->Set(true);
+			rShifter->Set(true);
 		} else if(driveStick->GetRawButton(2)) {
-			piston1->Set(0);
-			piston2->Set(0);
+			lShifter->Set(false);
+			rShifter->Set(false);
 		}
 
 
