@@ -8,10 +8,13 @@ class Robot: public IterativeRobot
 	CANTalon *rDrive2;
 	CANTalon *arm1;
 	CANTalon *arm2;
+	CANTalon *flipper1;
+	CANTalon *flipper2;
 	DoubleSolenoid *lShifter;
 	DoubleSolenoid *rShifter;
 	Joystick *driveStick;
 	Joystick *manipulatorStick;
+	Compressor *steven;
 
 //potatoes
 public:
@@ -23,10 +26,15 @@ public:
 		rDrive2 = new CANTalon(4);
 		arm1 = new CANTalon(5);
 		arm2 = new CANTalon(6);
+		flipper1 = new CANTalon(7);
+		flipper2 = new CANTalon(8);
 		lShifter = new DoubleSolenoid(0,1);
 		rShifter = new DoubleSolenoid(2,3);
 		driveStick = new Joystick(0);
 		manipulatorStick = new Joystick(1);
+		steven = new Compressor(0);
+
+		CameraServer::GetInstance()->SetQuality(50);
 	}
 
 
@@ -103,6 +111,9 @@ private:
 
 	void TeleopPeriodic()
 	{
+		CameraServer::GetInstance()->StartAutomaticCapture("cam0");
+		steven->SetClosedLoopControl(true);
+
 		leftX = driveStick->GetRawAxis(0);
 		if(fabs(leftX) < threshold)
 			leftX = 0;
@@ -128,10 +139,10 @@ private:
 		if(fabs(rightTrigger) < (threshold))
 			rightTrigger = 0;
 
-		lDrive1->Set(-(leftY - leftX));
-		lDrive1->Set(-(leftY - leftX));
-		rDrive2->Set(leftY + leftX);
-		rDrive2->Set(leftY + leftX);
+		rDrive1->Set(-(leftY + leftX));
+		rDrive2->Set(-(leftY + leftX));
+		lDrive1->Set(leftY - leftX);
+		lDrive2->Set(leftY - leftX);
 
 		if(driveStick->GetRawButton(3)) {
 			lShifter->Set(DoubleSolenoid::Value::kForward);
@@ -158,7 +169,22 @@ private:
 			arm2 = 0;
 		}
 
-	}
+		if(!manipulatorStick->GetRawButton(6) && !manipulatorStick->GetRawButton(5)) {
+			flipper1->Set(mRightY);
+			flipper2->Set(-mRightY);
+			if(fabs(mRightY) < threshold && !driveStick->GetRawButton(6) && !driveStick->GetRawButton(5)) {
+				flipper1->Set(rightY);
+				flipper2->Set(-rightY);
+			}
+		} else if(!driveStick->GetRawButton(6) && !driveStick->GetRawButton(5)) {
+			flipper1->Set(rightY);
+			flipper2->Set(-rightY);
+		} else {
+			flipper1->Set(0);
+			flipper2->Set(0);
+		}
+
+	}//:D
 
 	void TestPeriodic()
 	{
