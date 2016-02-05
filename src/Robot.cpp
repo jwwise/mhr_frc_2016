@@ -27,6 +27,7 @@ public:
 		rShifter = new DoubleSolenoid(2,3);
 		driveStick = new Joystick(0);
 		manipulatorStick = new Joystick(1);
+		chooser = new SendableChooser;
 	}
 
 
