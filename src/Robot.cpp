@@ -2,11 +2,32 @@
 
 class Robot: public IterativeRobot
 {
-	Talon *lDrive = new Talon(0);
-	Talon *rDrive = new Talon(1);
-	Solenoid *piston = new Solenoid(2);
-	Joystick *driveStick = new Joystick(0);
-	Joystick *manipulatorStick = new Joystick(1);
+	CANTalon *lDrive1;
+	CANTalon *lDrive2;
+	CANTalon *rDrive1;
+	CANTalon *rDrive2;
+	CANTalon *arm1;
+	CANTalon *arm2;
+	DoubleSolenoid *lShifter;
+	DoubleSolenoid *rShifter;
+	Joystick *driveStick;
+	Joystick *manipulatorStick;
+
+//potatoes
+public:
+	Robot() {
+		Wait(1);
+		lDrive1 = new CANTalon(1);
+		lDrive2 = new CANTalon(2);
+		rDrive1 = new CANTalon(3);
+		rDrive2 = new CANTalon(4);
+		arm1 = new CANTalon(5);
+		arm2 = new CANTalon(6);
+		lShifter = new DoubleSolenoid(0,1);
+		rShifter = new DoubleSolenoid(2,3);
+		driveStick = new Joystick(0);
+		manipulatorStick = new Joystick(1);
+	}
 
 
 private:
@@ -25,7 +46,7 @@ private:
 	double rightTrigger = 0;
 	double threshold = 0.1;
 
-	void RobotInit()
+	void RobotInit() override
 	{
 		/*chooser = new SendableChooser();
 		chooser->AddDefault(autoNameDefault, (void*)&autoNameDefault);
@@ -61,7 +82,15 @@ private:
 	void AutonomousPeriodic()
 	{
 		if(autoSelected == autoNameCustom){
-			//Custom Auto goes here
+			lDrive1->Set(.475);
+			rDrive1->Set(.475);
+			lDrive2->Set(.475);
+			rDrive2->Set(.475);
+			Wait(4);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
 		} else {
 			//Default Auto goes here
 		}
@@ -99,14 +128,36 @@ private:
 		if(fabs(rightTrigger) < (threshold))
 			rightTrigger = 0;
 
-		lDrive->Set(-(leftY - leftX));
-		rDrive->Set(leftY + leftX);
+		lDrive1->Set(-(leftY - leftX));
+		lDrive1->Set(-(leftY - leftX));
+		rDrive2->Set(leftY + leftX);
+		rDrive2->Set(leftY + leftX);
 
 		if(driveStick->GetRawButton(3)) {
-			piston->Set(1);
+			lShifter->Set(DoubleSolenoid::Value::kForward);
+			rShifter->Set(DoubleSolenoid::Value::kForward);
 		} else if(driveStick->GetRawButton(2)) {
-			piston->Set(0);
+			lShifter->Set(DoubleSolenoid::Value::kReverse);
+			rShifter->Set(DoubleSolenoid::Value::kReverse);
 		}
+
+
+
+		if(manipulatorStick->GetRawButton(6)) {
+			arm1->Set(mRightY);
+		} else if(driveStick->GetRawButton(6)) {
+			arm1->Set(rightY);
+		} else {
+			arm1 = 0;
+		}
+		if(manipulatorStick->GetRawButton(5)) {
+			arm2->Set(mLeftY);
+		} else if(driveStick->GetRawButton(5)) {
+			arm2->Set(rightY);
+		} else {
+			arm2 = 0;
+		}
+
 	}
 
 	void TestPeriodic()
