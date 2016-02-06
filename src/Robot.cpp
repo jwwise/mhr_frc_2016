@@ -16,7 +16,7 @@ class Robot: public IterativeRobot
 	Joystick *manipulatorStick;
 	Compressor *steven;
 
-//potatoes
+//potatoes ;D
 public:
 	Robot() {
 		Wait(1);
@@ -111,8 +111,8 @@ private:
 
 	void TeleopPeriodic()
 	{
-		CameraServer::GetInstance()->StartAutomaticCapture("cam0");
-		steven->SetClosedLoopControl(true);
+		CameraServer::GetInstance()->StartAutomaticCapture("cam0"); //Starts the camera
+		steven->SetClosedLoopControl(true); //Runs the onboard compressor
 
 		leftX = driveStick->GetRawAxis(0);
 		if(fabs(leftX) < threshold)
@@ -138,11 +138,13 @@ private:
 		rightTrigger = (driveStick->GetRawAxis(3));
 		if(fabs(rightTrigger) < (threshold))
 			rightTrigger = 0;
+//Adds threshholds
 
 		rDrive1->Set(-(leftY + leftX));
 		rDrive2->Set(-(leftY + leftX));
 		lDrive1->Set(leftY - leftX);
 		lDrive2->Set(leftY - leftX);
+//Drive code
 
 		if(driveStick->GetRawButton(3)) {
 			lShifter->Set(DoubleSolenoid::Value::kForward);
@@ -151,7 +153,7 @@ private:
 			lShifter->Set(DoubleSolenoid::Value::kReverse);
 			rShifter->Set(DoubleSolenoid::Value::kReverse);
 		}
-
+//Controls the pneumatic pistons in the gear boxes
 
 
 		if(manipulatorStick->GetRawButton(6)) {
@@ -168,7 +170,7 @@ private:
 		} else {
 			arm2 = 0;
 		}
-
+//Controls the arm
 		if(!manipulatorStick->GetRawButton(6) && !manipulatorStick->GetRawButton(5)) {
 			flipper1->Set(mRightY);
 			flipper2->Set(-mRightY);
@@ -184,7 +186,7 @@ private:
 			flipper2->Set(0);
 		}
 
-	}//:D
+	}//Tomahawk motor control
 
 	void TestPeriodic()
 	{
