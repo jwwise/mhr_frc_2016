@@ -1,4 +1,5 @@
 #include "WPILib.h"
+//#include <iostream>
 
 class Robot: public IterativeRobot
 {
@@ -8,33 +9,40 @@ class Robot: public IterativeRobot
 	CANTalon *rDrive2;
 	CANTalon *arm1;
 	CANTalon *arm2;
-	CANTalon *flipper1;
-	CANTalon *flipper2;
+	//CANTalon *flipper1;
+	//CANTalon *flipper2;
 	DoubleSolenoid *lShifter;
 	DoubleSolenoid *rShifter;
+	DoubleSolenoid *flipper1;
+	DoubleSolenoid *flipper2;
 	Joystick *driveStick;
 	Joystick *manipulatorStick;
 	Compressor *steven;
 
 //potatoes
 public:
+	//std::shared_ptr<NetworkTable> table;
 	Robot() {
 		Wait(1);
+		chooser = new SendableChooser;
 		lDrive1 = new CANTalon(1);
 		lDrive2 = new CANTalon(2);
 		rDrive1 = new CANTalon(3);
 		rDrive2 = new CANTalon(4);
 		arm1 = new CANTalon(5);
 		arm2 = new CANTalon(6);
-		flipper1 = new CANTalon(7);
-		flipper2 = new CANTalon(8);
+		//flipper1 = new CANTalon(7);
+		//flipper2 = new CANTalon(8);
 		lShifter = new DoubleSolenoid(0,1);
 		rShifter = new DoubleSolenoid(2,3);
+		flipper1 = new DoubleSolenoid(4,5);
+		flipper2 = new DoubleSolenoid(6,7);
 		driveStick = new Joystick(0);
 		manipulatorStick = new Joystick(1);
 		steven = new Compressor(0);
 
 		CameraServer::GetInstance()->SetQuality(50);
+		//table = NetworkTable::GetTable("GRIP/myContoursReport");
 	}
 
 
@@ -60,6 +68,12 @@ private:
 		chooser->AddDefault(autoNameDefault, (void*)&autoNameDefault);
 		chooser->AddObject(autoNameCustom, (void*)&autoNameCustom);
 		SmartDashboard::PutData("Auto Modes", chooser);*/
+
+		/*std::cout << "Areas: ";
+		std::vector<double> arr = table->GetNumberArray("area", llvm::ArrayRef<double>());
+		for (unsigned int i = 0; i < arr.size(); i++) {
+			std::cout << arr[i]
+		}*/
 
 
 	}
@@ -139,6 +153,13 @@ private:
 		if(fabs(rightTrigger) < (threshold))
 			rightTrigger = 0;
 
+		leftX = pow(leftX, 3.0);
+		leftY = pow(leftY, 3.0);
+		rightX = pow(rightX, 3.0);
+		rightY = pow(rightY, 3.0);
+		mRightY = pow(mRightY, 3.0);
+		mLeftY = pow(mLeftY, 3.0);
+
 		rDrive1->Set(-(leftY + leftX));
 		rDrive2->Set(-(leftY + leftX));
 		lDrive1->Set(leftY - leftX);
@@ -169,7 +190,7 @@ private:
 			arm2 = 0;
 		}
 
-		if(!manipulatorStick->GetRawButton(6) && !manipulatorStick->GetRawButton(5)) {
+		/*if(!manipulatorStick->GetRawButton(6) && !manipulatorStick->GetRawButton(5)) {
 			flipper1->Set(mRightY);
 			flipper2->Set(-mRightY);
 			if(fabs(mRightY) < threshold && !driveStick->GetRawButton(6) && !driveStick->GetRawButton(5)) {
@@ -182,6 +203,14 @@ private:
 		} else {
 			flipper1->Set(0);
 			flipper2->Set(0);
+		}*/
+
+		if(manipulatorStick->GetRawButton(1) || driveStick->GetRawButton(1)) {
+			flipper1->Set(DoubleSolenoid::Value::kForward);
+			flipper2->Set(DoubleSolenoid::Value::kForward);
+		} else if(manipulatorStick->GetRawButton(4) || driveStick->GetRawButton(4)) {
+			flipper1->Set(DoubleSolenoid::Value::kReverse);
+			flipper2->Set(DoubleSolenoid::Value::kReverse);
 		}
 
 	}//:D
