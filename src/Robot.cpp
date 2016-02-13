@@ -9,7 +9,8 @@ class Robot: public IterativeRobot
 	CANTalon *rDrive1;
 	CANTalon *rDrive2;
 	CANTalon *arm1;
-	CANTalon *shooter;
+	CANTalon *shooter1;
+	CANTalon *shooter2;
 	//CANTalon *flipper1;
 	//CANTalon *flipper2;
 	DoubleSolenoid *shifter;
@@ -20,7 +21,7 @@ class Robot: public IterativeRobot
 	Joystick *manipulatorStick;
 	Compressor *steven;
 
-//potatoes
+//NOPE
 public:
 	//std::shared_ptr<NetworkTable> table;
 	Robot() {
@@ -31,7 +32,8 @@ public:
 		rDrive1 = new CANTalon(3);
 		rDrive2 = new CANTalon(4);
 		arm1 = new CANTalon(5);
-		shooter = new CANTalon(6);
+		shooter1 = new CANTalon(6);
+		shooter2 = new CANTalon(7);
 		//flipper1 = new CANTalon(7);
 		//flipper2 = new CANTalon(8);
 		shifter = new DoubleSolenoid(0,1);
@@ -240,9 +242,14 @@ private:
 		}
 
 		if(fabs(mRightTrigger) > threshold) {
-			shooter->Set(mRightTrigger);
+			shooter1->Set(mRightTrigger);
+			shooter2->Set(-mRightTrigger);
+		} else if(fabs(rightTrigger)> threshold) {
+			shooter1->Set(rightTrigger);
+			shooter2->Set(-rightTrigger);
 		} else {
-			shooter->Set(0);
+			shooter1->Set(0);
+			shooter1->Set(0);
 		}
 
 		if(manipulatorStick->GetRawButton(6)) {
