@@ -11,12 +11,13 @@ class Robot: public IterativeRobot
 	CANTalon *arm1;
 	CANTalon *shooter1;
 	CANTalon *shooter2;
-	//CANTalon *flipper1;
+	//CANTalon *flipper;
 	//CANTalon *flipper2;
-	DoubleSolenoid *shifter;
+	DoubleSolenoid *lShifter;
+	DoubleSolenoid *rShifter;
 	DoubleSolenoid *william;
-	DoubleSolenoid *flipper1;
-	DoubleSolenoid *flipper2;
+	DoubleSolenoid *flipper;
+	//DoubleSolenoid *flipper2;
 	Joystick *driveStick;
 	Joystick *manipulatorStick;
 	Compressor *steven;
@@ -34,12 +35,12 @@ public:
 		arm1 = new CANTalon(5);
 		shooter1 = new CANTalon(6);
 		shooter2 = new CANTalon(7);
-		//flipper1 = new CANTalon(7);
+		//flipper = new CANTalon(7);
 		//flipper2 = new CANTalon(8);
-		shifter = new DoubleSolenoid(0,1);
-		william = new DoubleSolenoid(2,3);
-		flipper1 = new DoubleSolenoid(4,5);
-		flipper2 = new DoubleSolenoid(6,7);
+		lShifter = new DoubleSolenoid(0,1);
+		rShifter = new DoubleSolenoid(2,3);
+		flipper = new DoubleSolenoid(4,5);
+		william = new DoubleSolenoid(6,7);
 		driveStick = new Joystick(0);
 		manipulatorStick = new Joystick(1);
 		steven = new Compressor(0);
@@ -194,11 +195,11 @@ private:
 		lDrive2->Set(leftY + leftX);
 
 		if(driveStick->GetRawButton(3)) {
-			shifter->Set(DoubleSolenoid::Value::kForward);
-			//rShifter->Set(DoubleSolenoid::Value::kForward);
+			lShifter->Set(DoubleSolenoid::Value::kForward);
+			rShifter->Set(DoubleSolenoid::Value::kForward);
 		} else if(driveStick->GetRawButton(2)) {
-			shifter->Set(DoubleSolenoid::Value::kReverse);
-			//rShifter->Set(DoubleSolenoid::Value::kReverse);
+			lShifter->Set(DoubleSolenoid::Value::kReverse);
+			rShifter->Set(DoubleSolenoid::Value::kReverse);
 		}
 
 
@@ -219,26 +220,26 @@ private:
 		}*/
 
 		/*if(!manipulatorStick->GetRawButton(6) && !manipulatorStick->GetRawButton(5)) {
-			flipper1->Set(mRightY);
+			flipper->Set(mRightY);
 			flipper2->Set(-mRightY);
 			if(fabs(mRightY) < threshold && !driveStick->GetRawButton(6) && !driveStick->GetRawButton(5)) {
-				flipper1->Set(rightY);
+				flipper->Set(rightY);
 				flipper2->Set(-rightY);
 			}
 		} else if(!driveStick->GetRawButton(6) && !driveStick->GetRawButton(5)) {
-			flipper1->Set(rightY);
+			flipper->Set(rightY);
 			flipper2->Set(-rightY);
 		} else {
-			flipper1->Set(0);
+			flipper->Set(0);
 			flipper2->Set(0);
 		}*/
 
 		if(manipulatorStick->GetRawButton(1) || driveStick->GetRawButton(1)) {
-			flipper1->Set(DoubleSolenoid::Value::kForward);
-			flipper2->Set(DoubleSolenoid::Value::kForward);
+			flipper->Set(DoubleSolenoid::Value::kForward);
+			//flipper2->Set(DoubleSolenoid::Value::kForward);
 		} else if(manipulatorStick->GetRawButton(4) || driveStick->GetRawButton(4)) {
-			flipper1->Set(DoubleSolenoid::Value::kReverse);
-			flipper2->Set(DoubleSolenoid::Value::kReverse);
+			flipper->Set(DoubleSolenoid::Value::kReverse);
+			//flipper2->Set(DoubleSolenoid::Value::kReverse);
 		}
 
 		if(fabs(mRightTrigger) > threshold) {
