@@ -70,7 +70,7 @@ private:
 	double mLeftTrigger = 0;
 	double threshold = 0.09;
 
-	/*void drive(double speed = 0)
+	void drive(double speed = 0)
 	{
 		lDrive1->Set(speed);
 		lDrive2->Set(speed);
@@ -82,7 +82,7 @@ private:
 	{
 		shooter1->Set(speed);
 		shooter2->Set(-speed);
-	}*/
+	}
 
 	void RobotInit() override
 	{
@@ -130,7 +130,7 @@ private:
 	void AutonomousPeriodic()
 	{
 		if(autoSelected == autoNameCustom){
-			lDrive1->Set(.475);
+			/*lDrive1->Set(.475);
 			rDrive1->Set(-.475);
 			lDrive2->Set(.475);
 			rDrive2->Set(-.475);
@@ -138,7 +138,10 @@ private:
 			lDrive1->Set(0);
 			rDrive1->Set(0);
 			lDrive2->Set(0);
-			rDrive2->Set(0);
+			rDrive2->Set(0);*/
+			drive(.475);
+			Wait(4);
+			drive(0);
 		} else {
 			//Default Auto goes here
 		}
@@ -213,10 +216,11 @@ private:
 			mLeftY = -mLeftY;
 		}
 
-		rDrive1->Set(-(leftY - leftX));
+		drive(-(leftY - leftX));
+		/*rDrive1->Set(-(leftY - leftX));
 		rDrive2->Set(-(leftY - leftX));
 		lDrive1->Set(leftY + leftX);
-		lDrive2->Set(leftY + leftX);
+		lDrive2->Set(leftY + leftX);*/
 
 		if(driveStick->GetRawButton(3)) {
 			lShifter->Set(DoubleSolenoid::Value::kForward);
@@ -267,25 +271,25 @@ private:
 		}
 
 		if(fabs(rightTrigger)> threshold) {
-			shooter1->Set(rightTrigger);
-			shooter2->Set(-rightTrigger);
+			shoot(rightTrigger);
+			/*shooter1->Set(rightTrigger);
+			shooter2->Set(-rightTrigger);*/
 		} else if(fabs(mRightTrigger) > threshold) {
-			shooter1->Set(mRightTrigger);
-			shooter2->Set(-mRightTrigger);
-		} else {
-			shooter1->Set(0);
-			shooter2->Set(0);
-		}
-
-		if(fabs(leftTrigger)> threshold) {
-			shooter1->Set(leftTrigger / 8);
-			shooter2->Set(-leftTrigger / 8);
+			shoot(mRightTrigger);
+			/*shooter1->Set(mRightTrigger);
+			shooter2->Set(-mRightTrigger);*/
+		} else if(fabs(leftTrigger)> threshold) {
+			shoot(leftTrigger / 8);
+			/*shooter1->Set(leftTrigger / 8);
+			shooter2->Set(-leftTrigger / 8);*/
 		} else if(fabs(mLeftTrigger) > threshold) {
-			shooter1->Set(mLeftTrigger / 8);
-			shooter2->Set(-mLeftTrigger / 8);
+			shoot(mLeftTrigger / 8);
+			/*shooter1->Set(mLeftTrigger / 8);
+			shooter2->Set(-mLeftTrigger / 8);*/
 		} else {
-			shooter1->Set(0);
-			shooter1->Set(0);
+			shoot(0);
+			/*shooter1->Set(0);
+			shooter2->Set(0);*/
 		}
 
 		if(driveStick->GetRawButton(6)) {
