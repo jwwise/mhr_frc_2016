@@ -11,6 +11,7 @@ class Robot: public IterativeRobot
 	CANTalon *arm1;
 	CANTalon *shooter1;
 	CANTalon *shooter2;
+	CANTalon *winch;
 	//CANTalon *flipper;
 	//CANTalon *flipper2;
 	DoubleSolenoid *lShifter;
@@ -35,6 +36,7 @@ public:
 		arm1 = new CANTalon(5);
 		shooter1 = new CANTalon(6);
 		shooter2 = new CANTalon(7);
+		winch = new CANTalon(8);
 		//flipper = new CANTalon(7);
 		//flipper2 = new CANTalon(8);
 		lShifter = new DoubleSolenoid(0,1);
@@ -65,10 +67,26 @@ private:
 	double leftTrigger = 0;
 	double rightTrigger = 0;
 	double mRightTrigger = 0;
+	double mLeftTrigger = 0;
 	double threshold = 0.09;
+
+	/*void drive(double speed = 0)
+	{
+		lDrive1->Set(speed);
+		lDrive2->Set(speed);
+		rDrive1->Set(-speed);
+		lDrive2->Set(-speed);
+	}
+
+	void shoot(double speed = 0)
+	{
+		shooter1->Set(speed);
+		shooter2->Set(-speed);
+	}*/
 
 	void RobotInit() override
 	{
+		while(true) {
 		/*chooser = new SendableChooser();
 		chooser->AddDefault(autoNameDefault, (void*)&autoNameDefault);
 		chooser->AddObject(autoNameCustom, (void*)&autoNameCustom);
@@ -77,10 +95,13 @@ private:
 		/*std::cout << "Areas: ";
 		std::vector<double> arr = table->GetNumberArray("area", llvm::ArrayRef<double>());
 		for (unsigned int i = 0; i < arr.size(); i++) {
-			std::cout << arr[i]
-		}*/
+			std::cout << arr[i] << " ";
+		}
+		std::cout << std::endl;
+		Wait(1)
+		*/
 
-
+		}
 	}
 
 
@@ -131,7 +152,7 @@ private:
 	void TeleopPeriodic()
 	{
 		//CameraServer::GetInstance()->StartAutomaticCapture("cam0");
-		//steven->SetClosedLoopControl(true);
+		//steven->SetClosedLoopControl(true); //Caleb: A
 
 		leftX = driveStick->GetRawAxis(0);
 		if(fabs(leftX) < threshold)
@@ -160,6 +181,9 @@ private:
 		mRightTrigger = (driveStick->GetRawAxis(3));
 		if(fabs(mRightTrigger) < (threshold))
 			mRightTrigger = 0;
+		mLeftTrigger = (driveStick->GetRawAxis(2));
+		if(fabs(mLeftTrigger) < (threshold))
+			mLeftTrigger = 0;
 
 		leftX = pow(fabs(leftX), 1.4);
 		if(driveStick->GetRawAxis(0) > 0) {
@@ -204,10 +228,10 @@ private:
 
 
 
-		if(manipulatorStick->GetRawButton(5)) {
-			arm1->Set(mRightY);
-		} else if(driveStick->GetRawButton(5)) {
+		if(driveStick->GetRawButton(5)) {
 			arm1->Set(rightY);
+		} else if(manipulatorStick->GetRawButton(5)) {
+			arm1->Set(mRightY);
 		} else {
 			arm1->Set(0);
 		}
@@ -242,21 +266,46 @@ private:
 			//flipper2->Set(DoubleSolenoid::Value::kReverse);
 		}
 
-		if(fabs(mRightTrigger) > threshold) {
-			shooter1->Set(mRightTrigger);
-			shooter2->Set(-mRightTrigger);
-		} else if(fabs(rightTrigger)> threshold) {
+		if(fabs(rightTrigger)> threshold) {
 			shooter1->Set(rightTrigger);
 			shooter2->Set(-rightTrigger);
+		} else if(fabs(mRightTrigger) > threshold) {
+			shooter1->Set(mRightTrigger);
+			shooter2->Set(-mRightTrigger);
+		} else {
+			shooter1->Set(0);
+			shooter2->Set(0);
+		}
+
+		if(fabs(leftTrigger)> threshold) {
+			shooter1->Set(leftTrigger / 8);
+			shooter2->Set(-leftTrigger / 8);
+		} else if(fabs(mLeftTrigger) > threshold) {
+			shooter1->Set(mLeftTrigger / 8);
+			shooter2->Set(-mLeftTrigger / 8);
 		} else {
 			shooter1->Set(0);
 			shooter1->Set(0);
 		}
 
-		if(manipulatorStick->GetRawButton(6)) {
+		if(driveStick->GetRawButton(6)) {
+			william->Set(DoubleSolenoid::Value::kForward);
+		} else if(manipulatorStick->GetRawButton(6)) {
 			william->Set(DoubleSolenoid::Value::kForward);
 		} else {
 			william->Set(DoubleSolenoid::Value::kReverse);
+		}
+
+		if(driveStick->GetRawButton(8)) {
+			winch->Set(0.2);
+		} else if(driveStick->GetRawButton(7)) {
+			winch->Set(-0.2);
+		} else if(manipulatorStick->GetRawButton(8)) {
+			winch->Set(0.2);
+		} else if(manipulatorStick->GetRawButton(7)) {
+			winch->Set(-0.2);
+		} else {
+			winch->Set(0);
 		}
 
 	}//:D
