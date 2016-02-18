@@ -72,16 +72,43 @@ private:
 
 	void drive(double speed = 0)
 	{
-		lDrive1->Set(speed);
-		lDrive2->Set(speed);
-		rDrive1->Set(-speed);
-		lDrive2->Set(-speed);
+		while(true) {
+			lDrive1->Set(speed);
+			lDrive2->Set(speed);
+			rDrive1->Set(-speed);
+			lDrive2->Set(-speed);
+		}
 	}
 
 	void shoot(double speed = 0)
 	{
-		shooter1->Set(speed);
-		shooter2->Set(-speed);
+		while(true) {
+			shooter1->Set(speed);
+			shooter2->Set(-speed);
+		}
+	}
+
+	void shift(bool lowGear = true)
+	{
+		while(true) {
+			if(lowGear) {
+				lShifter->Set(DoubleSolenoid::Value::kForward);
+				rShifter->Set(DoubleSolenoid::Value::kForward);
+			} else if(!lowGear) {
+				lShifter->Set(DoubleSolenoid::Value::kReverse);
+				rShifter->Set(DoubleSolenoid::Value::kReverse);
+			}
+		}
+	}
+
+	void motorSet(double driveSpeed = 0, double shootSpeed = 0, double armSpeed = 0, double winchSpeed = 0)
+	{
+		while(true) {
+			drive(driveSpeed);
+			shoot(shootSpeed);
+			arm1->Set(armSpeed);
+			winch->Set(winchSpeed);
+		}
 	}
 
 	void RobotInit() override
@@ -122,6 +149,9 @@ private:
 
 		if(autoSelected == autoNameCustom){
 			//Custom Auto goes here
+			drive(.475);
+			Wait(4);
+			drive(0);
 		} else {
 			//Default Auto goes here
 		}
@@ -139,9 +169,7 @@ private:
 			rDrive1->Set(0);
 			lDrive2->Set(0);
 			rDrive2->Set(0);*/
-			drive(.475);
-			Wait(4);
-			drive(0);
+
 		} else {
 			//Default Auto goes here
 		}
@@ -223,19 +251,21 @@ private:
 		lDrive2->Set(leftY + leftX);*/
 
 		if(driveStick->GetRawButton(3)) {
-			lShifter->Set(DoubleSolenoid::Value::kForward);
-			rShifter->Set(DoubleSolenoid::Value::kForward);
+			shift(true);
+			/*lShifter->Set(DoubleSolenoid::Value::kForward);
+			rShifter->Set(DoubleSolenoid::Value::kForward);*/
 		} else if(driveStick->GetRawButton(2)) {
-			lShifter->Set(DoubleSolenoid::Value::kReverse);
-			rShifter->Set(DoubleSolenoid::Value::kReverse);
+			shift(false);
+			/*lShifter->Set(DoubleSolenoid::Value::kReverse);
+			rShifter->Set(DoubleSolenoid::Value::kReverse);*/
 		}
 
 
 
 		if(driveStick->GetRawButton(5)) {
-			arm1->Set(rightY);
+			arm1->Set(rightY / 2);
 		} else if(manipulatorStick->GetRawButton(5)) {
-			arm1->Set(mRightY);
+			arm1->Set(mRightY / 2);
 		} else {
 			arm1->Set(0);
 		}
