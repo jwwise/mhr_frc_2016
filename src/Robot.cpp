@@ -15,7 +15,7 @@ class Robot: public IterativeRobot
 	//CANTalon *flipper;
 	//CANTalon *flipper2;
 	DoubleSolenoid *lShifter;
-	DoubleSolenoid *rShifter;
+	//DoubleSolenoid *rShifter;
 	DoubleSolenoid *william;
 	DoubleSolenoid *flipper;
 	//DoubleSolenoid *flipper2;
@@ -40,9 +40,9 @@ public:
 		//flipper = new CANTalon(7);
 		//flipper2 = new CANTalon(8);
 		lShifter = new DoubleSolenoid(0,1);
-		rShifter = new DoubleSolenoid(2,3);
+		william = new DoubleSolenoid(2,3);
 		flipper = new DoubleSolenoid(4,5);
-		william = new DoubleSolenoid(6,7);
+		//rShifter = new DoubleSolenoid(6,7);
 		driveStick = new Joystick(0);
 		manipulatorStick = new Joystick(1);
 		steven = new Compressor(0);
@@ -68,52 +68,33 @@ private:
 	double rightTrigger = 0;
 	double mRightTrigger = 0;
 	double mLeftTrigger = 0;
+	bool dUp = false;
+	bool dRight = false;
+	bool dDown = false;
+	bool dLeft = false;
+	bool dUpR = false;
+	bool dUpL = false;
+	bool dDownR = false;
+	bool dDownL = false;
 	double threshold = 0.09;
 
-	void drive(double speed = 0)
+	/*void drive(double speed = 0)
 	{
-		while(true) {
-			lDrive1->Set(speed);
-			lDrive2->Set(speed);
-			rDrive1->Set(-speed);
-			lDrive2->Set(-speed);
-		}
+		lDrive1->Set(speed);
+		lDrive2->Set(speed);
+		rDrive1->Set(-speed);
+		lDrive2->Set(-speed);
 	}
 
 	void shoot(double speed = 0)
 	{
-		while(true) {
-			shooter1->Set(speed);
-			shooter2->Set(-speed);
-		}
-	}
-
-	void shift(bool lowGear = true)
-	{
-		while(true) {
-			if(lowGear) {
-				lShifter->Set(DoubleSolenoid::Value::kForward);
-				rShifter->Set(DoubleSolenoid::Value::kForward);
-			} else if(!lowGear) {
-				lShifter->Set(DoubleSolenoid::Value::kReverse);
-				rShifter->Set(DoubleSolenoid::Value::kReverse);
-			}
-		}
-	}
-
-	void motorSet(double driveSpeed = 0, double shootSpeed = 0, double armSpeed = 0, double winchSpeed = 0)
-	{
-		while(true) {
-			drive(driveSpeed);
-			shoot(shootSpeed);
-			arm1->Set(armSpeed);
-			winch->Set(winchSpeed);
-		}
-	}
+		shooter1->Set(speed);
+		shooter2->Set(-speed);
+	}*/
 
 	void RobotInit() override
 	{
-		while(true) {
+
 		/*chooser = new SendableChooser();
 		chooser->AddDefault(autoNameDefault, (void*)&autoNameDefault);
 		chooser->AddObject(autoNameCustom, (void*)&autoNameCustom);
@@ -128,7 +109,7 @@ private:
 		Wait(1)
 		*/
 
-		}
+
 	}
 
 
@@ -149,9 +130,6 @@ private:
 
 		if(autoSelected == autoNameCustom){
 			//Custom Auto goes here
-			drive(.475);
-			Wait(4);
-			drive(0);
 		} else {
 			//Default Auto goes here
 		}
@@ -160,7 +138,7 @@ private:
 	void AutonomousPeriodic()
 	{
 		if(autoSelected == autoNameCustom){
-			/*lDrive1->Set(.475);
+			lDrive1->Set(.475);
 			rDrive1->Set(-.475);
 			lDrive2->Set(.475);
 			rDrive2->Set(-.475);
@@ -168,8 +146,7 @@ private:
 			lDrive1->Set(0);
 			rDrive1->Set(0);
 			lDrive2->Set(0);
-			rDrive2->Set(0);*/
-
+			rDrive2->Set(0);
 		} else {
 			//Default Auto goes here
 		}
@@ -209,10 +186,10 @@ private:
 		rightTrigger = (driveStick->GetRawAxis(3));
 		if(fabs(rightTrigger) < (threshold))
 			rightTrigger = 0;
-		mRightTrigger = (driveStick->GetRawAxis(3));
+		mRightTrigger = (manipulatorStick->GetRawAxis(3));
 		if(fabs(mRightTrigger) < (threshold))
 			mRightTrigger = 0;
-		mLeftTrigger = (driveStick->GetRawAxis(2));
+		mLeftTrigger = (manipulatorStick->GetRawAxis(2));
 		if(fabs(mLeftTrigger) < (threshold))
 			mLeftTrigger = 0;
 
@@ -244,28 +221,107 @@ private:
 			mLeftY = -mLeftY;
 		}
 
-		drive(-(leftY - leftX));
-		/*rDrive1->Set(-(leftY - leftX));
+		if(driveStick->GetPOV() == 0) {
+			dUp = true;
+			dRight = false;
+			dDown = false;
+			dLeft = false;
+			dUpR = false;
+			dUpL = false;
+			dDownR = false;
+			dDownL = false;
+		} else if(driveStick->GetPOV() == 90) {
+			dUp = false;
+			dRight = true;
+			dDown = false;
+			dLeft = false;
+			dUpR = false;
+			dUpL = false;
+			dDownR = false;
+			dDownL = false;
+		} else if(driveStick->GetPOV() == 180) {
+			dUp = false;
+			dRight = false;
+			dDown = true;
+			dLeft = false;
+			dUpR = false;
+			dUpL = false;
+			dDownR = false;
+			dDownL = false;
+		} else if(driveStick->GetPOV() == 270) {
+			dUp = false;
+			dRight = false;
+			dDown = false;
+			dLeft = true;
+			dUpR = false;
+			dUpL = false;
+			dDownR = false;
+			dDownL = false;
+		} else if(driveStick->GetPOV() == 45) {
+			dUp = false;
+			dRight = false;
+			dDown = false;
+			dLeft = false;
+			dUpR = true;
+			dUpL = false;
+			dDownR = false;
+			dDownL = false;
+		} else if(driveStick->GetPOV() == 135) {
+			dUp = false;
+			dRight = false;
+			dDown = false;
+			dLeft = false;
+			dUpR = false;
+			dUpL = false;
+			dDownR = true;
+			dDownL = false;
+		} else if(driveStick->GetPOV() == 225) {
+			dUp = false;
+			dRight = false;
+			dDown = false;
+			dLeft = false;
+			dUpR = false;
+			dUpL = false;
+			dDownR = false;
+			dDownL = true;
+		} else if(driveStick->GetPOV() == 315) {
+			dUp = false;
+			dRight = false;
+			dDown = false;
+			dLeft = false;
+			dUpR = false;
+			dUpL = true;
+			dDownR = false;
+			dDownL = false;
+		} else {
+			dUp = false;
+			dRight = false;
+			dDown = false;
+			dLeft = false;
+			dUpR = false;
+			dUpL = false;
+			dDownR = false;
+			dDownL = false;
+		}
+
+		rDrive1->Set(-(leftY - leftX));
 		rDrive2->Set(-(leftY - leftX));
 		lDrive1->Set(leftY + leftX);
-		lDrive2->Set(leftY + leftX);*/
+		lDrive2->Set(leftY + leftX);
 
 		if(driveStick->GetRawButton(3)) {
-			shift(true);
-			/*lShifter->Set(DoubleSolenoid::Value::kForward);
-			rShifter->Set(DoubleSolenoid::Value::kForward);*/
+			lShifter->Set(DoubleSolenoid::Value::kForward);
+			//rShifter->Set(DoubleSolenoid::Value::kForward);
 		} else if(driveStick->GetRawButton(2)) {
-			shift(false);
-			/*lShifter->Set(DoubleSolenoid::Value::kReverse);
-			rShifter->Set(DoubleSolenoid::Value::kReverse);*/
+			lShifter->Set(DoubleSolenoid::Value::kReverse);
+			//rShifter->Set(DoubleSolenoid::Value::kReverse);
 		}
 
 
-
-		if(driveStick->GetRawButton(5)) {
-			arm1->Set(rightY / 2);
-		} else if(manipulatorStick->GetRawButton(5)) {
-			arm1->Set(mRightY / 2);
+		if(driveStick->GetRawButton(6)) {
+			arm1->Set(rightY);
+		} else if(manipulatorStick->GetRawButton(6)) {
+			arm1->Set(mRightY);
 		} else {
 			arm1->Set(0);
 		}
@@ -301,34 +357,36 @@ private:
 		}
 
 		if(fabs(rightTrigger)> threshold) {
-			shoot(rightTrigger);
-			/*shooter1->Set(rightTrigger);
-			shooter2->Set(-rightTrigger);*/
+			shooter1->Set(rightTrigger / 1.2);
+			shooter2->Set(-rightTrigger / 1.2);
 		} else if(fabs(mRightTrigger) > threshold) {
-			shoot(mRightTrigger);
-			/*shooter1->Set(mRightTrigger);
-			shooter2->Set(-mRightTrigger);*/
+			shooter1->Set(mRightTrigger / 1.2);
+			shooter2->Set(-mRightTrigger / 1.2);
 		} else if(fabs(leftTrigger)> threshold) {
-			shoot(leftTrigger / 8);
-			/*shooter1->Set(leftTrigger / 8);
-			shooter2->Set(-leftTrigger / 8);*/
+			shooter1->Set(-leftTrigger / 2.5);
+			shooter2->Set(leftTrigger / 2.5);
 		} else if(fabs(mLeftTrigger) > threshold) {
-			shoot(mLeftTrigger / 8);
-			/*shooter1->Set(mLeftTrigger / 8);
-			shooter2->Set(-mLeftTrigger / 8);*/
+			shooter1->Set(-mLeftTrigger / 2.5);
+			shooter2->Set(mLeftTrigger / 2.5);
 		} else {
-			shoot(0);
-			/*shooter1->Set(0);
-			shooter2->Set(0);*/
+			shooter1->Set(0);
+			shooter2->Set(0);
 		}
 
-		if(driveStick->GetRawButton(6)) {
-			william->Set(DoubleSolenoid::Value::kForward);
-		} else if(manipulatorStick->GetRawButton(6)) {
-			william->Set(DoubleSolenoid::Value::kForward);
-		} else {
+
+		if(driveStick->GetRawButton(5)) {
 			william->Set(DoubleSolenoid::Value::kReverse);
+		} else if(manipulatorStick->GetRawButton(5)) {
+			william->Set(DoubleSolenoid::Value::kReverse);
+		} else {
+			william->Set(DoubleSolenoid::Value::kForward);
 		}
+
+		/*if(dUp) {
+			william->Set(DoubleSolenoid::Value::kReverse);
+		} else if(dDown) {
+			william->Set(DoubleSolenoid::Value::kForward);
+		}*/
 
 		if(driveStick->GetRawButton(8)) {
 			winch->Set(0.2);
@@ -338,6 +396,16 @@ private:
 			winch->Set(0.2);
 		} else if(manipulatorStick->GetRawButton(7)) {
 			winch->Set(-0.2);
+		} else if(dUp) {
+			winch->Set(0.2);
+		} else if(dDown) {
+			winch->Set(-0.2);
+		} else if(manipulatorStick->GetPOV() == 0) {
+			winch->Set(0.2);
+		} else if(manipulatorStick->GetPOV() == 180) {
+			winch->Set(-0.2);
+		} else if(mLeftY > threshold) {
+			winch->Set(mLeftY / 2);
 		} else {
 			winch->Set(0);
 		}
@@ -347,6 +415,13 @@ private:
 	void TestPeriodic()
 	{
 		lw->Run();
+
+		if(driveStick->GetPOV() == 0) {
+			william->Set(DoubleSolenoid::Value::kReverse);
+		} else if(driveStick->GetPOV() == 180) {
+			william->Set(DoubleSolenoid::Value::kForward);
+		}
+
 	}
 };
 
