@@ -76,6 +76,17 @@ private:
 	bool dUpL = false;
 	bool dDownR = false;
 	bool dDownL = false;
+	bool cruise = false;
+	bool buttonVal0 = false;
+	bool buttonVal1 = false;
+	bool buttonVal2 = false;
+	bool buttonVal3 = false;
+	int dir = 0;
+	int action = 0;
+	int type = 0;
+	int typeMod = 0;
+	int mode = 0;
+	double fieldPos = 0;
 	double threshold = 0.09;
 
 	/*void drive(double speed = 0)
@@ -124,7 +135,19 @@ private:
 	 */
 	void AutonomousInit()
 	{
-		autoSelected = *((std::string*)chooser->GetSelected());
+		if(action == 0) {
+			lDrive1->Set(.475);
+			rDrive1->Set(-.475);
+			lDrive2->Set(.475);
+			rDrive2->Set(-.475);
+			Wait(4);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+		}
+
+		/*autoSelected = *((std::string*)chooser->GetSelected());
 		//std::string autoSelected = SmartDashboard::GetString("Auto Selector", autoNameDefault);
 		std::cout << "Auto selected: " << autoSelected << std::endl;
 
@@ -132,12 +155,12 @@ private:
 			//Custom Auto goes here
 		} else {
 			//Default Auto goes here
-		}
+		}*/
 	}
 
 	void AutonomousPeriodic()
 	{
-		if(autoSelected == autoNameCustom){
+		/*if(autoSelected == autoNameCustom){
 			lDrive1->Set(.475);
 			rDrive1->Set(-.475);
 			lDrive2->Set(.475);
@@ -149,7 +172,7 @@ private:
 			rDrive2->Set(0);
 		} else {
 			//Default Auto goes here
-		}
+		}*/
 	}
 
 	void TeleopInit()
@@ -388,6 +411,12 @@ private:
 			william->Set(DoubleSolenoid::Value::kForward);
 		}*/
 
+		if(dRight) {
+			cruise = true;
+		} else if(dLeft) {
+			cruise = false;
+		}
+
 		if(driveStick->GetRawButton(8)) {
 			winch->Set(0.2);
 		} else if(driveStick->GetRawButton(7)) {
@@ -397,15 +426,17 @@ private:
 		} else if(manipulatorStick->GetRawButton(7)) {
 			winch->Set(-0.2);
 		} else if(dUp) {
-			winch->Set(0.2);
+			winch->Set(-0.2);
 		} else if(dDown) {
-			winch->Set(-0.2);
-		} else if(manipulatorStick->GetPOV() == 0) {
 			winch->Set(0.2);
-		} else if(manipulatorStick->GetPOV() == 180) {
+		} else if(manipulatorStick->GetPOV() == 0) {
 			winch->Set(-0.2);
-		} else if(mLeftY > threshold) {
+		} else if(manipulatorStick->GetPOV() == 180) {
+			winch->Set(0.2);
+		} else if(fabs(mLeftY) > threshold) {
 			winch->Set(mLeftY / 2);
+		} else if(cruise) {
+			winch->Set(-0.05);
 		} else {
 			winch->Set(0);
 		}
@@ -416,12 +447,212 @@ private:
 	{
 		lw->Run();
 
-		if(driveStick->GetPOV() == 0) {
+		buttonVal0 = SmartDashboard::GetBoolean("DB/Button 0", false);
+		buttonVal1 = SmartDashboard::GetBoolean("DB/Button 1", false);
+		buttonVal2 = SmartDashboard::GetBoolean("DB/Button 2", false);
+		buttonVal3 = SmartDashboard::GetBoolean("DB/Button 3", false);
+
+		if(buttonVal0) {
 			william->Set(DoubleSolenoid::Value::kReverse);
-		} else if(driveStick->GetPOV() == 180) {
+		} else if(buttonVal1) {
 			william->Set(DoubleSolenoid::Value::kForward);
 		}
 
+	}
+
+	void DisabledPeriodic()
+	{
+		buttonVal0 = SmartDashboard::GetBoolean("DB/Button 0", false);
+		buttonVal1 = SmartDashboard::GetBoolean("DB/Button 1", false);
+		buttonVal2 = SmartDashboard::GetBoolean("DB/Button 2", false);
+		buttonVal3 = SmartDashboard::GetBoolean("DB/Button 3", false);
+		SmartDashboard::PutString("DB/String 6", "Position: Slider 0");
+		fieldPos = SmartDashboard::GetNumber("DB/Slider 0", 0.0);
+
+		if(type == 0) {
+			SmartDashboard::PutString("DB/String 0", "0");
+		} else if(type > 0) {
+			SmartDashboard::PutString("DB/String 0", "1");
+		}
+
+		if(SmartDashboard::GetString("DB/String 1", "") == "drive") {
+			action = 0;
+		} else if(SmartDashboard::GetString("DB/String 1", "") == "breach") {
+			action = 1;
+		} else if(SmartDashboard::GetString("DB/String 1", "") == "shoot") {
+			action = 2;
+		} else {
+			SmartDashboard::PutString("DB/String 1", "drive");
+		}
+
+		if(SmartDashboard::GetString("DB/String 2", "") == "Class A") {
+			type = 0;
+		} else if(SmartDashboard::GetString("DB/String 2", "") == "Class B") {
+			type = 1;
+		} else if(SmartDashboard::GetString("DB/String 2", "") == "Class C") {
+			type = 2;
+		} else if(SmartDashboard::GetString("DB/String 2", "") == "Class D") {
+			type = 3;
+		} else if(SmartDashboard::GetString("DB/String 2", "") == "Class E") {
+			type = 4;
+		} else {
+			SmartDashboard::PutString("DB/String 2", "Class A");
+		}
+
+		if(SmartDashboard::GetString("DB/String 3", "") == "1") {
+			typeMod = 0;
+		} else if((SmartDashboard::GetString("DB/String 3", "") == "2") && SmartDashboard::GetString("DB/String 2", "") != "Class E") {
+			typeMod = 1;
+		} else {
+			SmartDashboard::PutString("DB/String 3", "1");
+		}
+
+		if(buttonVal0) {
+			SmartDashboard::PutBoolean("DB/Button 0", false);
+			buttonVal0 = false;
+			if(action == 0) {
+				SmartDashboard::PutString("DB/String 1", "breach");
+			} else if(action == 1) {
+				SmartDashboard::PutString("DB/String 1", "shoot");
+			} else if(action == 2) {
+				SmartDashboard::PutString("DB/String 1", "drive");
+			}
+		}
+		if(buttonVal1 == true) {
+			SmartDashboard::PutBoolean("DB/Button 1", false);
+			buttonVal1 = false;
+			if(type == 0) {
+				SmartDashboard::PutString("DB/String 2", "Class A");
+			} else if(type == 1) {
+				SmartDashboard::PutString("DB/String 2", "Class B");
+			} else if(type == 2) {
+				SmartDashboard::PutString("DB/String 2", "Class C");
+			} else if(type == 3) {
+				SmartDashboard::PutString("DB/String 2", "Class D");
+			} else if(type == 4) {
+				SmartDashboard::PutString("DB/String 2", "Class E");
+			}
+		}
+		if(buttonVal2) {
+			SmartDashboard::PutBoolean("DB/Button 2", false);
+			buttonVal2 = false;
+			if(typeMod == 0) {
+				SmartDashboard::PutString("DB/String 3", "1");
+			} else if(typeMod == 1) {
+				SmartDashboard::PutString("DB/String 3", "2");
+			}
+		}
+		if(buttonVal3) {
+			SmartDashboard::PutBoolean("DB/Button 3", false);
+			buttonVal3 = false;
+		}
+
+		if(typeMod == 0) {
+			if(SmartDashboard::GetString("DB/String 2", "") == "Class A") {
+				SmartDashboard::PutString("DB/String 8", "Portcullis");
+			} else if(SmartDashboard::GetString("DB/String 2", "") == "Class B") {
+				SmartDashboard::PutString("DB/String 8", "Moat");
+			} else if(SmartDashboard::GetString("DB/String 2", "") == "Class C") {
+				SmartDashboard::PutString("DB/String 8", "Drawbridge");
+			} else if(SmartDashboard::GetString("DB/String 2", "") == "Class D") {
+				SmartDashboard::PutString("DB/String 8", "Rock Wall");
+			} else if(SmartDashboard::GetString("DB/String 2", "") == "Class E") {
+				SmartDashboard::PutString("DB/String 8", "Low Bar");
+			}
+		} else if(typeMod == 1) {
+			if(SmartDashboard::GetString("DB/String 2", "") == "Class A") {
+				SmartDashboard::PutString("DB/String 8", "Cheval de Frise");
+			} else if(SmartDashboard::GetString("DB/String 2", "") == "Class B") {
+				SmartDashboard::PutString("DB/String 8", "Ramparts");
+			} else if(SmartDashboard::GetString("DB/String 2", "") == "Class C") {
+				SmartDashboard::PutString("DB/String 8", "Sally Port");
+			} else if(SmartDashboard::GetString("DB/String 2", "") == "Class D") {
+				SmartDashboard::PutString("DB/String 8", "Rough Terrain");
+			}
+		}
+
+/*		if(dir != 0 && buttonVal3) {
+			SmartDashboard::PutBoolean("DB/Button 3", false);
+			buttonVal3 = false;
+			dir = 0;
+		}
+
+		if(dir == 0) {
+			SmartDashboard::PutString("DB/String 0", "Root");
+			SmartDashboard::PutString("DB/String 1", "Class A");
+			SmartDashboard::PutString("DB/String 2", "Class B");
+			SmartDashboard::PutString("DB/String 3", "Class C");
+			SmartDashboard::PutString("DB/String 4", "More");
+			if(buttonVal0) {
+				SmartDashboard::PutBoolean("DB/Button 0", false);
+				buttonVal0 = false;
+				dir = 1;
+			} else if(buttonVal1) {
+				SmartDashboard::PutBoolean("DB/Button 1", false);
+				buttonVal1 = false;
+				dir = 2;
+			} else if(buttonVal2) {
+				SmartDashboard::PutBoolean("DB/Button 2", false);
+				buttonVal2 = false;
+				dir = 3;
+			} else if(buttonVal3) {
+				SmartDashboard::PutBoolean("DB/Button 3", false);
+				buttonVal3 = false;
+				dir = 4;
+			}
+		} else if(dir == 1) {
+			SmartDashboard::PutString("DB/String 0", "Class A:");
+			SmartDashboard::PutString("DB/String 1", "Auto 1");
+			SmartDashboard::PutString("DB/String 2", "Auto 2");
+			SmartDashboard::PutString("DB/String 3", "Auto 3");
+			SmartDashboard::PutString("DB/String 4", "Return");
+			if(buttonVal0) {
+				mode = 1;
+			} else if(buttonVal1) {
+				mode = 2;
+			} else if(buttonVal2) {
+				mode = 3;
+			}
+		} else if(dir == 2) {
+			SmartDashboard::PutString("DB/String 0", "Class B:");
+			SmartDashboard::PutString("DB/String 1", "Auto 4");
+			SmartDashboard::PutString("DB/String 2", "Auto 5");
+			SmartDashboard::PutString("DB/String 3", "Auto 6");
+			SmartDashboard::PutString("DB/String 4", "Return");
+			if(buttonVal0) {
+				mode = 4;
+			} else if(buttonVal1) {
+				mode = 5;
+			} else if(buttonVal2) {
+				mode = 6;
+			}
+		} else if(dir == 3) {
+			SmartDashboard::PutString("DB/String 0", "Class C:");
+			SmartDashboard::PutString("DB/String 1", "Auto 7");
+			SmartDashboard::PutString("DB/String 2", "Auto 8");
+			SmartDashboard::PutString("DB/String 3", "Auto 9");
+			SmartDashboard::PutString("DB/String 4", "Return");
+			if(buttonVal0) {
+				mode = 7;
+			} else if(buttonVal1) {
+				mode = 8;
+			} else if(buttonVal2) {
+				mode = 9;
+			}
+		} else if(dir == 4) {
+			SmartDashboard::PutString("DB/String 0", "More:");
+			SmartDashboard::PutString("DB/String 1", "Class D");
+			SmartDashboard::PutString("DB/String 2", "Class E");
+			SmartDashboard::PutString("DB/String 3", "Misc.");
+			SmartDashboard::PutString("DB/String 4", "Return");
+			if(buttonVal0) {
+				dir = 41;
+			} else if(buttonVal1) {
+				dir = 42;
+			} else if(buttonVal2) {
+				dir = 43;
+			}
+		}*/
 	}
 };
 
