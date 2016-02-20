@@ -135,17 +135,128 @@ private:
 	 */
 	void AutonomousInit()
 	{
-		if(action == 0) {
-			lDrive1->Set(.475);
-			rDrive1->Set(-.475);
-			lDrive2->Set(.475);
-			rDrive2->Set(-.475);
-			Wait(4);
+		if(action == 0) { //Drive
+			lShifter->Set(DoubleSolenoid::Value::kForward);
+			lDrive1->Set(-.475);
+			rDrive1->Set(.475);
+			lDrive2->Set(-.475);
+			rDrive2->Set(.475);
+			Wait(2);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
 			lDrive2->Set(0);
 			rDrive2->Set(0);
+		} else if(action == 1 && ((type == 0 && typeMod == 0) || (type == 4 && typeMod == 0))) {
+			lShifter->Set(DoubleSolenoid::Value::kForward); //Low Bar & Portcullis
+			flipper->Set(DoubleSolenoid::Value::kForward);
+			lDrive1->Set(-.475);
+			rDrive1->Set(.475);
+			lDrive2->Set(-.475);
+			rDrive2->Set(.475);
+			Wait(6);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+		} else if(action == 1 && ((type == 1 && typeMod == 0) || (type == 3 && typeMod == 0) || (type == 1 && typeMod == 1) || (type == 3 && typeMod == 1))) {
+			lShifter->Set(DoubleSolenoid::Value::kForward); //Long Drive
+			lDrive1->Set(-.555);
+			rDrive1->Set(.555);
+			lDrive2->Set(-.555);
+			rDrive2->Set(.555);
+			Wait(5);
+			if(type == 1 && typeMod == 0) {
+				Wait(1);
+			}
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+		} else if(action == 1 && (type == 0 && typeMod == 1)) { // Cheval de Frise
+			lShifter->Set(DoubleSolenoid::Value::kForward);
+			lDrive1->Set(-.475);
+			rDrive1->Set(.475);
+			lDrive2->Set(-.475);
+			rDrive2->Set(.475);
+			Wait(1.6);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+			flipper->Set(DoubleSolenoid::Value::kForward);
+			Wait(1.5);
+			lDrive1->Set(-.475);
+			rDrive1->Set(.475);
+			lDrive2->Set(-.475);
+			rDrive2->Set(.475);
+			Wait(0.5);
+			flipper->Set(DoubleSolenoid::Value::kReverse);
+			Wait(1.5);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+			Wait(1);
+			lDrive1->Set(-.475);
+			rDrive1->Set(.475);
+			lDrive2->Set(-.475);
+			rDrive2->Set(.475);
+			Wait(1.5);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+		} else if(action == 1 && (type == 2 && typeMod == 0)) { //Drawbridge
+			lShifter->Set(DoubleSolenoid::Value::kForward);
+			lDrive1->Set(-.475);
+			rDrive1->Set(.475);
+			lDrive2->Set(-.475);
+			rDrive2->Set(.475);
+			arm1->Set(.75);
+			Wait(1.25);
+			arm1->Set(0);
+			Wait(.75);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+			arm1->Set(-.3);
+			Wait(0.1);
+			lDrive1->Set(.3);
+			rDrive1->Set(-.3);
+			lDrive2->Set(.3);
+			rDrive2->Set(-.3);
+			Wait(1.25);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+			Wait(.2);
+			lDrive1->Set(-.15);
+			rDrive1->Set(.15);
+			lDrive2->Set(-.15);
+			rDrive2->Set(.15);
+			Wait(1);
+			arm1->Set(0);
+			flipper->Set(DoubleSolenoid::Value::kForward);
+			Wait(.5);
+			lDrive1->Set(.15);
+			rDrive1->Set(-.15);
+			lDrive2->Set(.15);
+			rDrive2->Set(-.15);
+			Wait(.5);
+			lDrive1->Set(-.475);
+			rDrive1->Set(.475);
+			lDrive2->Set(-.475);
+			rDrive2->Set(.475);
+			Wait(1.5);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+			flipper->Set(DoubleSolenoid::Value::kReverse);
 		}
+
 
 		/*autoSelected = *((std::string*)chooser->GetSelected());
 		//std::string autoSelected = SmartDashboard::GetString("Auto Selector", autoNameDefault);
