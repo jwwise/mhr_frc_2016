@@ -22,6 +22,14 @@ class Robot: public IterativeRobot
 	Joystick *driveStick;
 	Joystick *manipulatorStick;
 	Compressor *steven;
+	DigitalInput *switch1;
+	DigitalInput *switch2;
+	DigitalInput *switch3;
+	DigitalInput *switch4;
+	AnalogInput *shooterUS;
+	/*Image *frame;
+	Image *frame2;
+	IMAQdxSession *session;*/
 
 //NOPE
 public:
@@ -46,6 +54,13 @@ public:
 		driveStick = new Joystick(0);
 		manipulatorStick = new Joystick(1);
 		steven = new Compressor(0);
+		switch1 = new DigitalInput(0);
+		switch2 = new DigitalInput(1);
+		switch3 = new DigitalInput(2);
+		switch4 = new DigitalInput(3);
+		shooterUS = new AnalogInput(4);
+		//frame = new ImageType(ColorImage);
+		//session = new IMAQdxSession;
 
 		//CameraServer::GetInstance()->SetQuality(50);
 		//table = NetworkTable::GetTable("GRIP/myContoursReport");
@@ -82,7 +97,7 @@ private:
 	bool buttonVal2 = false;
 	bool buttonVal3 = false;
 	int dir = 0;
-	int action = 0;
+	int action = 1;
 	int type = 0;
 	int typeMod = 0;
 	int mode = 0;
@@ -105,6 +120,9 @@ private:
 
 	void RobotInit() override
 	{
+		/*frame = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
+		imaqColorThreshold(frame2, frame, 0, 0, Range(0), Range(255), Range(0);*/
+
 
 		/*chooser = new SendableChooser();
 		chooser->AddDefault(autoNameDefault, (void*)&autoNameDefault);
@@ -295,6 +313,7 @@ private:
 	{
 		//CameraServer::GetInstance()->StartAutomaticCapture("cam0");
 		//steven->SetClosedLoopControl(true); //Caleb: A
+		//frame = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 
 		leftX = driveStick->GetRawAxis(0);
 		if(fabs(leftX) < threshold)
@@ -453,9 +472,21 @@ private:
 
 
 		if(driveStick->GetRawButton(6)) {
-			arm1->Set(rightY);
+			if(rightY > threshold && !switch3) {
+				arm1->Set(rightY);
+			} else if(rightY < threshold && !switch4) {
+				arm1->Set(rightY);
+			} else {
+				arm1->Set(0);
+			}
 		} else if(manipulatorStick->GetRawButton(6)) {
-			arm1->Set(mRightY);
+			if(mRightY > threshold && !switch3) {
+				arm1->Set(mRightY);
+			} else if(mRightY < threshold && !switch4) {
+				arm1->Set(mRightY);
+			} else {
+				arm1->Set(0);
+			}
 		} else {
 			arm1->Set(0);
 		}
@@ -522,36 +553,41 @@ private:
 			william->Set(DoubleSolenoid::Value::kForward);
 		}*/
 
-		if(dRight) {
+		if(dRight || manipulatorStick->GetPOV() == 90) {
 			cruise = true;
-		} else if(dLeft) {
+		} else if(dLeft || manipulatorStick->GetPOV() == 270) {
 			cruise = false;
 		}
 
-		if(driveStick->GetRawButton(8)) {
+		if(driveStick->GetRawButton(8) &! switch1) {
 			winch->Set(0.2);
-		} else if(driveStick->GetRawButton(7)) {
+		} else if(driveStick->GetRawButton(7) &! switch2) {
 			winch->Set(-0.2);
-		} else if(manipulatorStick->GetRawButton(8)) {
+		} else if(manipulatorStick->GetRawButton(8) &! switch1) {
 			winch->Set(0.2);
-		} else if(manipulatorStick->GetRawButton(7)) {
+		} else if(manipulatorStick->GetRawButton(7) &! switch2) {
 			winch->Set(-0.2);
-		} else if(dUp) {
+		} else if(dUp &! switch2) {
 			winch->Set(-0.2);
-		} else if(dDown) {
+		} else if(dDown &! switch1) {
 			winch->Set(0.2);
-		} else if(manipulatorStick->GetPOV() == 0) {
+		} else if((manipulatorStick->GetPOV() == 0) &! switch2) {
 			winch->Set(-0.2);
-		} else if(manipulatorStick->GetPOV() == 180) {
+		} else if((manipulatorStick->GetPOV() == 180) &! switch1) {
 			winch->Set(0.2);
 		} else if(fabs(mLeftY) > threshold) {
 			winch->Set(mLeftY / 2);
-		} else if(cruise) {
+		} else if(cruise &! switch2) {
 			winch->Set(-0.05);
 		} else {
 			winch->Set(0);
 		}
 
+		if(shooterUS->GetValue() < 20) {
+			SmartDashboard::PutString("DB/String 9", "Loaded");
+		} else {
+			SmartDashboard::PutString("DB/String 9", "Feed me, please!");
+		}
 	}//:D
 
 	void TestPeriodic()
