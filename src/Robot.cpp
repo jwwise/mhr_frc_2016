@@ -9,20 +9,6 @@ class Robot: public IterativeRobot
 	CANTalon *rDrive1;
 	CANTalon *rDrive2;
 	CANTalon *arm1;
-<<<<<<< HEAD
-	CANTalon *arm2;
-	//CANTalon *flipper1;
-	//CANTalon *flipper2;
-	DoubleSolenoid *lShifter;
-	DoubleSolenoid *rShifter;
-	DoubleSolenoid *flipper1;
-	DoubleSolenoid *flipper2;
-	Joystick *driveStick;
-	Joystick *manipulatorStick;
-	Compressor *steven;
-
-//potatoes
-=======
 	CANTalon *shooter1;
 	CANTalon *shooter2;
 	CANTalon *winch;
@@ -46,7 +32,6 @@ class Robot: public IterativeRobot
 	IMAQdxSession *session;*/
 
 //NOPE
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 public:
 	//std::shared_ptr<NetworkTable> table;
 	Robot() {
@@ -57,18 +42,6 @@ public:
 		rDrive1 = new CANTalon(3);
 		rDrive2 = new CANTalon(4);
 		arm1 = new CANTalon(5);
-<<<<<<< HEAD
-		arm2 = new CANTalon(6);
-		//flipper1 = new CANTalon(7);
-		//flipper2 = new CANTalon(8);
-		lShifter = new DoubleSolenoid(0,1);
-		rShifter = new DoubleSolenoid(2,3);
-		flipper1 = new DoubleSolenoid(4,5);
-		flipper2 = new DoubleSolenoid(6,7);
-		driveStick = new Joystick(0);
-		manipulatorStick = new Joystick(1);
-		steven = new Compressor(0);
-=======
 		shooter1 = new CANTalon(6);
 		shooter2 = new CANTalon(7);
 		winch = new CANTalon(8);
@@ -88,7 +61,6 @@ public:
 		shooterUS = new AnalogInput(4);
 		//frame = new ImageType(ColorImage);
 		//session = new IMAQdxSession;
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 
 		//CameraServer::GetInstance()->SetQuality(50);
 		//table = NetworkTable::GetTable("GRIP/myContoursReport");
@@ -109,12 +81,6 @@ private:
 	double mRightY = 0;
 	double leftTrigger = 0;
 	double rightTrigger = 0;
-<<<<<<< HEAD
-	double threshold = 0.09;
-
-	void RobotInit() override
-	{
-=======
 	double mRightTrigger = 0;
 	double mLeftTrigger = 0;
 	bool dUp = false;
@@ -125,7 +91,7 @@ private:
 	bool dUpL = false;
 	bool dDownR = false;
 	bool dDownL = false;
-	bool cruise = false;
+	bool manualShoot = false;
 	bool buttonVal0 = false;
 	bool buttonVal1 = false;
 	bool buttonVal2 = false;
@@ -158,7 +124,6 @@ private:
 		imaqColorThreshold(frame2, frame, 0, 0, Range(0), Range(255), Range(0);*/
 
 
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 		/*chooser = new SendableChooser();
 		chooser->AddDefault(autoNameDefault, (void*)&autoNameDefault);
 		chooser->AddObject(autoNameCustom, (void*)&autoNameCustom);
@@ -167,16 +132,11 @@ private:
 		/*std::cout << "Areas: ";
 		std::vector<double> arr = table->GetNumberArray("area", llvm::ArrayRef<double>());
 		for (unsigned int i = 0; i < arr.size(); i++) {
-<<<<<<< HEAD
-			std::cout << arr[i]
-		}*/
-=======
 			std::cout << arr[i] << " ";
 		}
 		std::cout << std::endl;
 		Wait(1)
 		*/
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 
 
 	}
@@ -193,9 +153,6 @@ private:
 	 */
 	void AutonomousInit()
 	{
-<<<<<<< HEAD
-		autoSelected = *((std::string*)chooser->GetSelected());
-=======
 		if(action == 0) { //Drive
 			lShifter->Set(DoubleSolenoid::Value::kForward);
 			lDrive1->Set(-.475);
@@ -320,7 +277,6 @@ private:
 
 
 		/*autoSelected = *((std::string*)chooser->GetSelected());
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 		//std::string autoSelected = SmartDashboard::GetString("Auto Selector", autoNameDefault);
 		std::cout << "Auto selected: " << autoSelected << std::endl;
 
@@ -328,28 +284,16 @@ private:
 			//Custom Auto goes here
 		} else {
 			//Default Auto goes here
-<<<<<<< HEAD
-		}
-=======
 		}*/
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 	}
 
 	void AutonomousPeriodic()
 	{
-<<<<<<< HEAD
-		if(autoSelected == autoNameCustom){
-			lDrive1->Set(.475);
-			rDrive1->Set(.475);
-			lDrive2->Set(.475);
-			rDrive2->Set(.475);
-=======
 		/*if(autoSelected == autoNameCustom){
 			lDrive1->Set(.475);
 			rDrive1->Set(-.475);
 			lDrive2->Set(.475);
 			rDrive2->Set(-.475);
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 			Wait(4);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
@@ -357,11 +301,7 @@ private:
 			rDrive2->Set(0);
 		} else {
 			//Default Auto goes here
-<<<<<<< HEAD
-		}
-=======
 		}*/
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 	}
 
 	void TeleopInit()
@@ -372,12 +312,8 @@ private:
 	void TeleopPeriodic()
 	{
 		//CameraServer::GetInstance()->StartAutomaticCapture("cam0");
-<<<<<<< HEAD
-		//steven->SetClosedLoopControl(true);
-=======
-		//steven->SetClosedLoopControl(true); //Caleb: A
+		steven->SetClosedLoopControl(true); //Caleb: A
 		//frame = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 
 		leftX = driveStick->GetRawAxis(0);
 		if(fabs(leftX) < threshold)
@@ -403,15 +339,12 @@ private:
 		rightTrigger = (driveStick->GetRawAxis(3));
 		if(fabs(rightTrigger) < (threshold))
 			rightTrigger = 0;
-<<<<<<< HEAD
-=======
 		mRightTrigger = (manipulatorStick->GetRawAxis(3));
 		if(fabs(mRightTrigger) < (threshold))
 			mRightTrigger = 0;
 		mLeftTrigger = (manipulatorStick->GetRawAxis(2));
 		if(fabs(mLeftTrigger) < (threshold))
 			mLeftTrigger = 0;
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 
 		leftX = pow(fabs(leftX), 1.4);
 		if(driveStick->GetRawAxis(0) > 0) {
@@ -441,8 +374,6 @@ private:
 			mLeftY = -mLeftY;
 		}
 
-<<<<<<< HEAD
-=======
 		if(driveStick->GetPOV() == 0) {
 			dUp = true;
 			dRight = false;
@@ -526,7 +457,6 @@ private:
 			dDownL = false;
 		}
 
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 		rDrive1->Set(-(leftY - leftX));
 		rDrive2->Set(-(leftY - leftX));
 		lDrive1->Set(leftY + leftX);
@@ -534,24 +464,6 @@ private:
 
 		if(driveStick->GetRawButton(3)) {
 			lShifter->Set(DoubleSolenoid::Value::kForward);
-<<<<<<< HEAD
-			rShifter->Set(DoubleSolenoid::Value::kForward);
-		} else if(driveStick->GetRawButton(2)) {
-			lShifter->Set(DoubleSolenoid::Value::kReverse);
-			rShifter->Set(DoubleSolenoid::Value::kReverse);
-		}
-
-
-
-		if(manipulatorStick->GetRawButton(6)) {
-			arm1->Set(mRightY);
-		} else if(driveStick->GetRawButton(6)) {
-			arm1->Set(rightY);
-		} else {
-			arm1->Set(0);
-		}
-		if(manipulatorStick->GetRawButton(5)) {
-=======
 			//rShifter->Set(DoubleSolenoid::Value::kForward);
 		} else if(driveStick->GetRawButton(2)) {
 			lShifter->Set(DoubleSolenoid::Value::kReverse);
@@ -560,17 +472,17 @@ private:
 
 
 		if(driveStick->GetRawButton(6)) {
-			if(rightY > threshold && !switch3) {
+			if(rightY > threshold && switch3->Get()) {
 				arm1->Set(rightY);
-			} else if(rightY < threshold && !switch4) {
+			} else if(rightY < threshold && switch4->Get()) {
 				arm1->Set(rightY);
 			} else {
 				arm1->Set(0);
 			}
 		} else if(manipulatorStick->GetRawButton(6)) {
-			if(mRightY > threshold && !switch3) {
+			if(mRightY > threshold && switch3->Get()) {
 				arm1->Set(mRightY);
-			} else if(mRightY < threshold && !switch4) {
+			} else if(mRightY < threshold && switch4->Get()) {
 				arm1->Set(mRightY);
 			} else {
 				arm1->Set(0);
@@ -579,28 +491,11 @@ private:
 			arm1->Set(0);
 		}
 /*		if(manipulatorStick->GetRawButton(5)) {
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 			arm2->Set(mLeftY);
 		} else if(driveStick->GetRawButton(5)) {
 			arm2->Set(rightY);
 		} else {
 			arm2->Set(0);
-<<<<<<< HEAD
-		}
-
-		/*if(!manipulatorStick->GetRawButton(6) && !manipulatorStick->GetRawButton(5)) {
-			flipper1->Set(mRightY);
-			flipper2->Set(-mRightY);
-			if(fabs(mRightY) < threshold && !driveStick->GetRawButton(6) && !driveStick->GetRawButton(5)) {
-				flipper1->Set(rightY);
-				flipper2->Set(-rightY);
-			}
-		} else if(!driveStick->GetRawButton(6) && !driveStick->GetRawButton(5)) {
-			flipper1->Set(rightY);
-			flipper2->Set(-rightY);
-		} else {
-			flipper1->Set(0);
-=======
 		}*/
 
 		/*if(!manipulatorStick->GetRawButton(6) && !manipulatorStick->GetRawButton(5)) {
@@ -615,20 +510,10 @@ private:
 			flipper2->Set(-rightY);
 		} else {
 			flipper->Set(0);
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 			flipper2->Set(0);
 		}*/
 
 		if(manipulatorStick->GetRawButton(1) || driveStick->GetRawButton(1)) {
-<<<<<<< HEAD
-			flipper1->Set(DoubleSolenoid::Value::kForward);
-			flipper2->Set(DoubleSolenoid::Value::kForward);
-		} else if(manipulatorStick->GetRawButton(4) || driveStick->GetRawButton(4)) {
-			flipper1->Set(DoubleSolenoid::Value::kReverse);
-			flipper2->Set(DoubleSolenoid::Value::kReverse);
-		}
-
-=======
 			flipper->Set(DoubleSolenoid::Value::kForward);
 			//flipper2->Set(DoubleSolenoid::Value::kForward);
 		} else if(manipulatorStick->GetRawButton(4) || driveStick->GetRawButton(4)) {
@@ -636,21 +521,58 @@ private:
 			//flipper2->Set(DoubleSolenoid::Value::kReverse);
 		}
 
-		if(fabs(rightTrigger)> threshold) {
-			shooter1->Set(rightTrigger / 1.2);
-			shooter2->Set(-rightTrigger / 1.2);
-		} else if(fabs(mRightTrigger) > threshold) {
-			shooter1->Set(mRightTrigger / 1.2);
-			shooter2->Set(-mRightTrigger / 1.2);
-		} else if(fabs(leftTrigger)> threshold) {
-			shooter1->Set(-leftTrigger / 2.5);
-			shooter2->Set(leftTrigger / 2.5);
-		} else if(fabs(mLeftTrigger) > threshold) {
-			shooter1->Set(-mLeftTrigger / 2.5);
-			shooter2->Set(mLeftTrigger / 2.5);
+		if(manualShoot) {
+			if(driveStick->GetRawButton(8)) {
+				if(fabs(rightTrigger)> threshold) {
+					shooter1->Set(-rightTrigger / 2.5);
+				} else if(fabs(mRightTrigger) > threshold) {
+					shooter1->Set(-mRightTrigger / 2.5);
+				} else {
+					shooter1->Set(0);
+				}
+			} else {
+				if(fabs(rightTrigger)> threshold) {
+					shooter1->Set(rightTrigger / 1.2);
+				} else if(fabs(mRightTrigger) > threshold) {
+					shooter1->Set(mRightTrigger / 1.2);
+				} else {
+					shooter1->Set(0);
+				}
+			}
+			if(driveStick->GetRawButton(7)) {
+				if(fabs(leftTrigger)> threshold) {
+					shooter2->Set(leftTrigger / 2.5);
+				} else if(fabs(mLeftTrigger) > threshold) {
+					shooter2->Set(mLeftTrigger / 2.5);
+				} else {
+					shooter2->Set(0);
+				}
+			} else {
+				if(fabs(leftTrigger)> threshold) {
+					shooter2->Set(-leftTrigger / 1.2);
+				} else if(fabs(mLeftTrigger) > threshold) {
+					shooter2->Set(-mLeftTrigger / 1.2);
+				} else {
+					shooter2->Set(0);
+				}
+			}
 		} else {
-			shooter1->Set(0);
-			shooter2->Set(0);
+			if(fabs(rightTrigger)> threshold) {
+				shooter1->Set(rightTrigger / 1.2);
+				shooter2->Set(-rightTrigger / 1.2);
+			} else if(fabs(mRightTrigger) > threshold) {
+				shooter1->Set(mRightTrigger / 1.2);
+				shooter2->Set(-mRightTrigger / 1.2);
+			} else if(fabs(leftTrigger)> threshold) {
+				shooter1->Set(-leftTrigger / 2.5);
+				shooter2->Set(leftTrigger / 2.5);
+			} else if(fabs(mLeftTrigger) > threshold) {
+				shooter1->Set(-mLeftTrigger / 2.5);
+				shooter2->Set(mLeftTrigger / 2.5);
+			} else {
+				shooter1->Set(0);
+				shooter2->Set(0);
+			}
 		}
 
 
@@ -669,31 +591,35 @@ private:
 		}*/
 
 		if(dRight || manipulatorStick->GetPOV() == 90) {
-			cruise = true;
+			manualShoot = true;
 		} else if(dLeft || manipulatorStick->GetPOV() == 270) {
-			cruise = false;
+			manualShoot = false;
 		}
 
-		if(driveStick->GetRawButton(8) &! switch1) {
-			winch->Set(0.2);
-		} else if(driveStick->GetRawButton(7) &! switch2) {
-			winch->Set(-0.2);
-		} else if(manipulatorStick->GetRawButton(8) &! switch1) {
-			winch->Set(0.2);
-		} else if(manipulatorStick->GetRawButton(7) &! switch2) {
-			winch->Set(-0.2);
-		} else if(dUp &! switch2) {
-			winch->Set(-0.2);
-		} else if(dDown &! switch1) {
-			winch->Set(0.2);
-		} else if((manipulatorStick->GetPOV() == 0) &! switch2) {
-			winch->Set(-0.2);
-		} else if((manipulatorStick->GetPOV() == 180) &! switch1) {
-			winch->Set(0.2);
+		/*if(driveStick->GetRawButton(8) && switch1->Get()) {
+			winch->Set(0.5);
+		} else if(driveStick->GetRawButton(7) && switch2->Get()) {
+			winch->Set(-0.5);
+		} else if(manipulatorStick->GetRawButton(8) && switch1->Get()) {
+			winch->Set(0.5);
+		} else if(manipulatorStick->GetRawButton(7) && switch2->Get()) {
+			winch->Set(-0.5);
+		} else */if(dUp && switch2->Get()) {
+			winch->Set(-0.5);
+		} else if(dDown && switch1->Get()) {
+			winch->Set(0.5);
+		} else if((manipulatorStick->GetPOV() == 0) && switch2->Get()) {
+			winch->Set(-0.5);
+		} else if((manipulatorStick->GetPOV() == 180) && switch1->Get()) {
+			winch->Set(0.5);
 		} else if(fabs(mLeftY) > threshold) {
-			winch->Set(mLeftY / 2);
-		} else if(cruise &! switch2) {
-			winch->Set(-0.05);
+			if(mLeftY > threshold && switch3->Get()) {
+				winch->Set(mLeftY);
+			} else if(mLeftY < threshold && switch4->Get()) {
+				winch->Set(mLeftY);
+			}
+		/*} else if(cruise && switch2->Get()) {
+			winch->Set(-0.05);*/
 		} else {
 			winch->Set(0);
 		}
@@ -703,14 +629,11 @@ private:
 		} else {
 			SmartDashboard::PutString("DB/String 9", "Feed me, please!");
 		}
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 	}//:D
 
 	void TestPeriodic()
 	{
 		lw->Run();
-<<<<<<< HEAD
-=======
 
 		buttonVal0 = SmartDashboard::GetBoolean("DB/Button 0", false);
 		buttonVal1 = SmartDashboard::GetBoolean("DB/Button 1", false);
@@ -918,7 +841,6 @@ private:
 				dir = 43;
 			}
 		}*/
->>>>>>> 2d52d3808d0307cee83315490cf8b3854e69b8d6
 	}
 };
 
