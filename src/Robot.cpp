@@ -26,7 +26,7 @@ class Robot: public IterativeRobot
 	DigitalInput *switch2;
 	DigitalInput *switch3;
 	DigitalInput *switch4;
-	AnalogInput *shooterUS;
+	Ultrasonic *shooterUS;
 	/*Image *frame;
 	Image *frame2;
 	IMAQdxSession *session;*/
@@ -625,11 +625,13 @@ private:
 			winch->Set(0);
 		}
 
-		if(shooterUS->GetValue() < 20) {
+		if(shooterUS->GetRangeInches() > 3) {
 			SmartDashboard::PutString("DB/String 9", "Loaded");
 		} else {
 			SmartDashboard::PutString("DB/String 9", "Feed me, please!");
 		}
+
+		fieldPos = SmartDashboard::PutNumber("DB/Slider 1", shooterUS->GetRangeInches());
 	}//:D
 
 	void TestPeriodic()
