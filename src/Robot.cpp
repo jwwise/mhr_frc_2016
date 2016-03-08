@@ -26,7 +26,10 @@ class Robot: public IterativeRobot
 	DigitalInput *switch2;
 	DigitalInput *switch3;
 	DigitalInput *switch4;
-	Ultrasonic *shooterUS;
+	AnalogInput *sonic;
+	//I2C *arduino;
+	/*DigitalOutput *sonicOut;
+	PWM *sonicIn;*/
 	/*Image *frame;
 	Image *frame2;
 	IMAQdxSession *session;*/
@@ -58,7 +61,10 @@ public:
 		switch2 = new DigitalInput(1);
 		switch3 = new DigitalInput(2);
 		switch4 = new DigitalInput(3);
-		shooterUS = new Ultrasonic(4, 5);
+		sonic = new AnalogInput(0);
+		//arduino = new I2C(4);
+		//sonicOut = new DigitalOutput(4);
+		//sonicIn = new PWM(0);
 		//frame = new ImageType(ColorImage);
 		//session = new IMAQdxSession;
 
@@ -103,6 +109,12 @@ private:
 	int mode = 0;
 	double fieldPos = 0;
 	double threshold = 0.09;
+	double speed = 0;
+	//double gearRatio = 18.75;
+	//double gearRatio = 15.32;
+	/*double distance = 0;
+	double pulse = 0;
+	const double inches = 0.125;*/
 
 	/*void drive(double speed = 0)
 	{
@@ -155,15 +167,9 @@ private:
 	{
 		if(action == 0) { //Drive
 			lShifter->Set(DoubleSolenoid::Value::kForward);
-			lDrive1->Set(-.475);
-			rDrive1->Set(.475);
-			lDrive2->Set(-.475);
-			rDrive2->Set(.475);
+			speed = .475;
 			Wait(2);
-			lDrive1->Set(0);
-			rDrive1->Set(0);
-			lDrive2->Set(0);
-			rDrive2->Set(0);
+			speed = 0;
 		} else if(action == 1 && ((type == 0 && typeMod == 0) || (type == 4 && typeMod == 0))) {
 			lShifter->Set(DoubleSolenoid::Value::kForward); //Low Bar & Portcullis
 			flipper->Set(DoubleSolenoid::Value::kForward);
@@ -231,20 +237,21 @@ private:
 			lDrive2->Set(-.475);
 			rDrive2->Set(.475);
 			arm1->Set(.75);
-			Wait(1.25);
+			Wait(1.15);
 			arm1->Set(0);
-			Wait(.75);
+			Wait(.85);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
 			lDrive2->Set(0);
 			rDrive2->Set(0);
+			Wait(0.5);
 			arm1->Set(-.3);
 			Wait(0.1);
 			lDrive1->Set(.3);
 			rDrive1->Set(-.3);
 			lDrive2->Set(.3);
 			rDrive2->Set(-.3);
-			Wait(1.25);
+			Wait(2.0);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
 			lDrive2->Set(0);
@@ -254,15 +261,25 @@ private:
 			rDrive1->Set(.15);
 			lDrive2->Set(-.15);
 			rDrive2->Set(.15);
-			Wait(1);
+			Wait(1.15);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+			Wait(0.85);
 			arm1->Set(0);
 			flipper->Set(DoubleSolenoid::Value::kForward);
-			Wait(.5);
+			Wait(1.5);
 			lDrive1->Set(.15);
 			rDrive1->Set(-.15);
 			lDrive2->Set(.15);
 			rDrive2->Set(-.15);
-			Wait(.5);
+			Wait(2);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+			Wait(0.5);
 			lDrive1->Set(-.475);
 			rDrive1->Set(.475);
 			lDrive2->Set(-.475);
@@ -289,6 +306,12 @@ private:
 
 	void AutonomousPeriodic()
 	{
+		if(action == 0) { //Drive
+			lDrive1->Set(-speed);
+			rDrive1->Set(speed);
+			lDrive2->Set(-speed);
+			rDrive2->Set(speed);
+		}
 		/*if(autoSelected == autoNameCustom){
 			lDrive1->Set(.475);
 			rDrive1->Set(-.475);
@@ -314,6 +337,9 @@ private:
 		//CameraServer::GetInstance()->StartAutomaticCapture("cam0");
 		steven->SetClosedLoopControl(true); //Caleb: A
 		//frame = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
+
+		//distance = (sonicIn->GetRaw() * inches);
+		//sonicOut->Pulse(10);
 
 		leftX = driveStick->GetRawAxis(0);
 		if(fabs(leftX) < threshold)
@@ -625,13 +651,13 @@ private:
 			winch->Set(0);
 		}
 
-		if(shooterUS->GetRangeInches() > 3) {
+		if(sonic->GetVoltage() < 0.13) {
 			SmartDashboard::PutString("DB/String 9", "Loaded");
 		} else {
 			SmartDashboard::PutString("DB/String 9", "Feed me, please!");
 		}
 
-		fieldPos = SmartDashboard::PutNumber("DB/Slider 1", shooterUS->GetRangeInches());
+		SmartDashboard::PutNumber("DB/Slider 1", sonic->GetVoltage());
 	}//:D
 
 	void TestPeriodic()
@@ -659,6 +685,13 @@ private:
 		buttonVal3 = SmartDashboard::GetBoolean("DB/Button 3", false);
 		SmartDashboard::PutString("DB/String 6", "Position: Slider 0");
 		fieldPos = SmartDashboard::GetNumber("DB/Slider 0", 0.0);
+
+		if(sonic->GetVoltage() < 0.13) {
+			SmartDashboard::PutString("DB/String 9", "Loaded");
+		} else {
+			SmartDashboard::PutString("DB/String 9", "Feed me, please!");
+		}
+		SmartDashboard::PutNumber("DB/Slider 1", sonic->GetVoltage());
 
 		if(type == 0) {
 			SmartDashboard::PutString("DB/String 0", "0");
