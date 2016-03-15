@@ -135,8 +135,8 @@ private:
 		/*frame = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 		imaqColorThreshold(frame2, frame, 0, 0, Range(0), Range(255), Range(0);*/
 
-		//CameraServer::GetInstance()->SetQuality(50);
-		//CameraServer::GetInstance()->StartAutomaticCapture("cam0");
+//		CameraServer::GetInstance()->SetQuality(50);
+//		CameraServer::GetInstance()->StartAutomaticCapture("cam0");
 
 		/*chooser = new SendableChooser();
 		chooser->AddDefault(autoNameDefault, (void*)&autoNameDefault);
@@ -169,28 +169,47 @@ private:
 	{
 		if(action == 0) { //Drive
 			lShifter->Set(DoubleSolenoid::Value::kForward);
-			speed = .475;
+			lDrive1->Set(-.475 / 1.223890339425587);
+			rDrive1->Set(.475 / 1.223890339425587);
+			lDrive2->Set(-.475 / 1.223890339425587);
+			rDrive2->Set(.475 / 1.223890339425587);
 			Wait(2);
-			speed = 0;
-		} else if(action == 1 && ((type == 0 && typeMod == 0) || (type == 4 && typeMod == 0))) {
-			lShifter->Set(DoubleSolenoid::Value::kForward); //Low Bar & Portcullis
-			flipper->Set(DoubleSolenoid::Value::kForward);
-			lDrive1->Set(-.475);
-			rDrive1->Set(.475);
-			lDrive2->Set(-.475);
-			rDrive2->Set(.475);
-			Wait(6);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
 			lDrive2->Set(0);
 			rDrive2->Set(0);
-		} else if(action == 1 && ((type == 1 && typeMod == 0) || (type == 3 && typeMod == 0) || (type == 1 && typeMod == 1) || (type == 3 && typeMod == 1))) {
-			lShifter->Set(DoubleSolenoid::Value::kForward); //Long Drive
+		} else if(action == 1 && ((type == 0 && typeMod == 0) || (type == 4 && typeMod == 0))) {
+			lShifter->Set(DoubleSolenoid::Value::kReverse); //Low Bar & Portcullis
+			flipper->Set(DoubleSolenoid::Value::kForward);
+			Wait(2);
+			lDrive1->Set(-.475);
+			rDrive1->Set(.475);
+			lDrive2->Set(-.475);
+			rDrive2->Set(.475);
+			Wait(4);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+			Wait(0.5);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+			shooter1->Set(0.4);
+			shooter2->Set(-0.4);
+			flipper->Set(DoubleSolenoid::Value::kReverse);
+			Wait(2);
+			william->Set(DoubleSolenoid::Value::kReverse);
+			Wait(0.5);
+			flipper->Set(DoubleSolenoid::Value::kForward);
+		} else if(action == 1 && ((type == 1 && typeMod == 0) || (type == 3 && typeMod == 0) || (type == 3 && typeMod == 1))) {
+			lShifter->Set(DoubleSolenoid::Value::kReverse); //Long Drive
 			lDrive1->Set(-.555);
 			rDrive1->Set(.555);
 			lDrive2->Set(-.555);
 			rDrive2->Set(.555);
-			Wait(5);
+			Wait(4);
 			if(type == 1 && typeMod == 0) {
 				Wait(1);
 			}
@@ -198,12 +217,25 @@ private:
 			rDrive1->Set(0);
 			lDrive2->Set(0);
 			rDrive2->Set(0);
-		} else if(action == 1 && (type == 0 && typeMod == 1)) { // Cheval de Frise
+		} else if(action == 1 && (type == 1 && typeMod == 1)) { // Ramparts
+			lShifter->Set(DoubleSolenoid::Value::kReverse);
+			lDrive1->Set(-1);
+			rDrive1->Set(1);
+			lDrive2->Set(-1);
+			rDrive2->Set(1);
+			Wait(0.5);
 			lShifter->Set(DoubleSolenoid::Value::kForward);
-			lDrive1->Set(-.475);
-			rDrive1->Set(.475);
-			lDrive2->Set(-.475);
-			rDrive2->Set(.475);
+			Wait(1);
+			lDrive1->Set(0);
+			rDrive1->Set(0);
+			lDrive2->Set(0);
+			rDrive2->Set(0);
+		} else if(action == 1 && (type == 0 && typeMod == 1)) { // Cheval de Frise
+			lShifter->Set(DoubleSolenoid::Value::kReverse);
+			lDrive1->Set(-.475 / 1.223890339425587);
+			rDrive1->Set(.472 / 1.223890339425587);
+			lDrive2->Set(-.475 / 1.223890339425587);
+			rDrive2->Set(.472 / 1.223890339425587);
 			Wait(1.6);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
@@ -211,10 +243,10 @@ private:
 			rDrive2->Set(0);
 			flipper->Set(DoubleSolenoid::Value::kForward);
 			Wait(1.5);
-			lDrive1->Set(-.475);
-			rDrive1->Set(.475);
-			lDrive2->Set(-.475);
-			rDrive2->Set(.475);
+			lDrive1->Set(-.475 / 1.223890339425587);
+			rDrive1->Set(.475 / 1.223890339425587);
+			lDrive2->Set(-.475 / 1.223890339425587);
+			rDrive2->Set(.475 / 1.223890339425587);
 			Wait(0.5);
 			flipper->Set(DoubleSolenoid::Value::kReverse);
 			Wait(1.5);
@@ -223,46 +255,46 @@ private:
 			lDrive2->Set(0);
 			rDrive2->Set(0);
 			Wait(1);
-			lDrive1->Set(-.475);
-			rDrive1->Set(.475);
-			lDrive2->Set(-.475);
-			rDrive2->Set(.475);
+			lDrive1->Set(-.475 / 1.223890339425587);
+			rDrive1->Set(.475 / 1.223890339425587);
+			lDrive2->Set(-.475 / 1.223890339425587);
+			rDrive2->Set(.475 / 1.223890339425587);
 			Wait(1.5);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
 			lDrive2->Set(0);
 			rDrive2->Set(0);
 		} else if(action == 1 && (type == 2 && typeMod == 0)) { //Drawbridge
-			lShifter->Set(DoubleSolenoid::Value::kForward);
-			lDrive1->Set(-.475);
-			rDrive1->Set(.475);
-			lDrive2->Set(-.475);
-			rDrive2->Set(.475);
-			arm1->Set(.75);
-			Wait(1.15);
+			lShifter->Set(DoubleSolenoid::Value::kReverse);
+			lDrive1->Set(-.475 / 1.223890339425587);
+			rDrive1->Set(.475 / 1.223890339425587);
+			lDrive2->Set(-.475 / 1.223890339425587);
+			rDrive2->Set(.475 / 1.223890339425587);
+			arm1->Set(.85);
+			Wait(1.25);
 			arm1->Set(0);
-			Wait(.85);
+			Wait(.75);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
 			lDrive2->Set(0);
 			rDrive2->Set(0);
 			Wait(0.5);
-			arm1->Set(-.3);
+			arm1->Set(-.45);
 			Wait(0.1);
-			lDrive1->Set(.3);
-			rDrive1->Set(-.3);
-			lDrive2->Set(.3);
-			rDrive2->Set(-.3);
+			lDrive1->Set(.3 / 1.223890339425587);
+			rDrive1->Set(-.3 / 1.223890339425587);
+			lDrive2->Set(.3 / 1.223890339425587);
+			rDrive2->Set(-.3 / 1.223890339425587);
 			Wait(2.0);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
 			lDrive2->Set(0);
 			rDrive2->Set(0);
 			Wait(.2);
-			lDrive1->Set(-.15);
-			rDrive1->Set(.15);
-			lDrive2->Set(-.15);
-			rDrive2->Set(.15);
+			lDrive1->Set(-.15 / 1.223890339425587);
+			rDrive1->Set(.15 / 1.223890339425587);
+			lDrive2->Set(-.15 / 1.223890339425587);
+			rDrive2->Set(.15 / 1.223890339425587);
 			Wait(1.15);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
@@ -272,20 +304,20 @@ private:
 			arm1->Set(0);
 			flipper->Set(DoubleSolenoid::Value::kForward);
 			Wait(1.5);
-			lDrive1->Set(.15);
-			rDrive1->Set(-.15);
-			lDrive2->Set(.15);
-			rDrive2->Set(-.15);
+			lDrive1->Set(.15 / 1.223890339425587);
+			rDrive1->Set(-.15 / 1.223890339425587);
+			lDrive2->Set(.15 / 1.223890339425587);
+			rDrive2->Set(-.15 / 1.223890339425587);
 			Wait(2);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
 			lDrive2->Set(0);
 			rDrive2->Set(0);
 			Wait(0.5);
-			lDrive1->Set(-.475);
-			rDrive1->Set(.475);
-			lDrive2->Set(-.475);
-			rDrive2->Set(.475);
+			lDrive1->Set(-.475 / 1.223890339425587);
+			rDrive1->Set(.475 / 1.223890339425587);
+			lDrive2->Set(-.475 / 1.223890339425587);
+			rDrive2->Set(.475 / 1.223890339425587);
 			Wait(1.5);
 			lDrive1->Set(0);
 			rDrive1->Set(0);
@@ -294,6 +326,16 @@ private:
 			flipper->Set(DoubleSolenoid::Value::kReverse);
 		}
 
+		//if(action == 2) {
+			/*lDrive1->Set(-.475);
+			rDrive1->Set(-.475);
+			lDrive2->Set(-.475);
+			rDrive2->Set(-.475);*/
+
+			//Wait(2);
+
+
+		//}
 
 		/*autoSelected = *((std::string*)chooser->GetSelected());
 		//std::string autoSelected = SmartDashboard::GetString("Auto Selector", autoNameDefault);
@@ -308,12 +350,12 @@ private:
 
 	void AutonomousPeriodic()
 	{
-		if(action == 0) { //Drive
+		/*if(action == 0) { //Drive
 			lDrive1->Set(-speed);
 			rDrive1->Set(speed);
 			lDrive2->Set(-speed);
 			rDrive2->Set(speed);
-		}
+		}*/
 		/*if(autoSelected == autoNameCustom){
 			lDrive1->Set(.475);
 			rDrive1->Set(-.475);
@@ -491,10 +533,10 @@ private:
 		lDrive2->Set(leftY + leftX);
 
 		if(driveStick->GetRawButton(3)) {
-			lShifter->Set(DoubleSolenoid::Value::kForward);
+			lShifter->Set(DoubleSolenoid::Value::kReverse);
 			//rShifter->Set(DoubleSolenoid::Value::kForward);
 		} else if(driveStick->GetRawButton(2)) {
-			lShifter->Set(DoubleSolenoid::Value::kReverse);
+			lShifter->Set(DoubleSolenoid::Value::kForward);
 			//rShifter->Set(DoubleSolenoid::Value::kReverse);
 		}
 
