@@ -27,6 +27,8 @@ class Robot: public IterativeRobot
 	DigitalInput *switch3;
 	DigitalInput *switch4;
 	AnalogInput *sonic;
+	ADXRS450_Gyro *gyro;
+	ADXL362 *accel;
 	//I2C *arduino;
 	/*DigitalOutput *sonicOut;
 	PWM *sonicIn;*/
@@ -62,6 +64,8 @@ public:
 		switch3 = new DigitalInput(2);
 		switch4 = new DigitalInput(3);
 		sonic = new AnalogInput(0);
+		gyro = new ADXRS450_Gyro();
+		accel = new ADXL362();
 		//arduino = new I2C(4);
 		//sonicOut = new DigitalOutput(4);
 		//sonicIn = new PWM(0);
@@ -165,6 +169,12 @@ private:
 	 * You can add additional auto modes by adding additional comparisons to the if-else structure below with additional strings.
 	 * If using the SendableChooser make sure to add them to the chooser code above as well.
 	 */
+
+	void GeneralPeriodic()
+	{
+		SmartDashboard::PutNumber("DB/Slider 3", gyro->GetAngle());
+	}
+
 	void AutonomousInit()
 	{
 		if(action == 0) { //Drive
