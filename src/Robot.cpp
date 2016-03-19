@@ -170,8 +170,9 @@ private:
 	 * If using the SendableChooser make sure to add them to the chooser code above as well.
 	 */
 
-	void GeneralPeriodic()
+	void RobotPeriodic()
 	{
+		SmartDashboard::PutNumber("DB/Slider 2", accel->GetY());
 		SmartDashboard::PutNumber("DB/Slider 3", gyro->GetAngle());
 	}
 
@@ -360,6 +361,8 @@ private:
 
 	void AutonomousPeriodic()
 	{
+		SmartDashboard::PutNumber("DB/Slider 3", gyro->GetAngle());
+
 		/*if(action == 0) { //Drive
 			lDrive1->Set(-speed);
 			rDrive1->Set(speed);
@@ -389,7 +392,11 @@ private:
 	void TeleopPeriodic()
 	{
 		//CameraServer::GetInstance()->StartAutomaticCapture("cam0");
-		steven->SetClosedLoopControl(true); //Caleb: A
+		steven->SetClosedLoopControl(true); //Caleb: A+
+		SmartDashboard::PutNumber("DB/Slider 0", accel->GetX());
+		SmartDashboard::PutNumber("DB/Slider 1", accel->GetY());
+		SmartDashboard::PutNumber("DB/Slider 2", accel->GetZ());
+		SmartDashboard::PutNumber("DB/Slider 3", gyro->GetAngle());
 		//frame = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 
 		//distance = (sonicIn->GetRaw() * inches);
@@ -711,7 +718,7 @@ private:
 			SmartDashboard::PutString("DB/String 9", "Feed me, please!");
 		}
 
-		SmartDashboard::PutNumber("DB/Slider 1", sonic->GetVoltage());
+		//SmartDashboard::PutNumber("DB/Slider 1", sonic->GetVoltage());
 	}//:D
 
 	void TestPeriodic()
@@ -739,6 +746,11 @@ private:
 		buttonVal3 = SmartDashboard::GetBoolean("DB/Button 3", false);
 		SmartDashboard::PutString("DB/String 6", "Position: Slider 0");
 		fieldPos = SmartDashboard::GetNumber("DB/Slider 0", 0.0);
+
+		SmartDashboard::PutNumber("DB/Slider 3", gyro->GetAngle());
+		SmartDashboard::PutNumber("DB/Slider 2", accel->GetY());
+		SmartDashboard::PutNumber("DB/Slider 0", accel->GetX());
+		SmartDashboard::PutNumber("DB/Slider 1", accel->GetY());
 
 		if(sonic->GetVoltage() < 0.13) {
 			SmartDashboard::PutString("DB/String 9", "Loaded");
