@@ -12,6 +12,7 @@ class Robot: public IterativeRobot
 	CANTalon *shooter1;
 	CANTalon *shooter2;
 	CANTalon *winch;
+	Talon *winch2;
 	//CANTalon *flipper;
 	//CANTalon *flipper2;
 	DoubleSolenoid *lShifter;
@@ -50,6 +51,7 @@ public:
 		shooter1 = new CANTalon(6);
 		shooter2 = new CANTalon(7);
 		winch = new CANTalon(8);
+		winch2 = new Talon(0);
 		//flipper = new CANTalon(7);
 		//flipper2 = new CANTalon(8);
 		lShifter = new DoubleSolenoid(0,1);
@@ -710,6 +712,14 @@ private:
 			winch->Set(-0.05);*/
 		} else {
 			winch->Set(0);
+		}
+
+		if(driveStick->GetRawButton(7)){
+			winch2->Set(-.5);
+		} else if(driveStick->GetRawButton(8)){
+			winch2->Set(.5);
+		} else {
+			winch2->Set(0);
 		}
 
 		if(sonic->GetVoltage() < 0.12) {
