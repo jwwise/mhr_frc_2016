@@ -116,6 +116,14 @@ private:
 	double fieldPos = 0;
 	double threshold = 0.09;
 	double speed = 0;
+	double imageWidth = 0;
+	double COGX = 0;
+	double COGY = 0;
+	double centerPos = 0;
+	double turnDistance = 0;
+	double shooterPos = 0;
+	bool kill = false;
+	std::shared_ptr<NetworkTable> roboRealm;
 	//double gearRatio = 18.75;
 	//double gearRatio = 15.32;
 	/*double distance = 0;
@@ -138,11 +146,13 @@ private:
 
 	void RobotInit() override
 	{
+		printf("Good Morning! ");
+
 		/*frame = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 		imaqColorThreshold(frame2, frame, 0, 0, Range(0), Range(255), Range(0);*/
 
-//		CameraServer::GetInstance()->SetQuality(50);
-//		CameraServer::GetInstance()->StartAutomaticCapture("cam0");
+		CameraServer::GetInstance()->SetQuality(50);
+		CameraServer::GetInstance()->StartAutomaticCapture("cam0");
 
 		/*chooser = new SendableChooser();
 		chooser->AddDefault(autoNameDefault, (void*)&autoNameDefault);
@@ -172,11 +182,11 @@ private:
 	 * If using the SendableChooser make sure to add them to the chooser code above as well.
 	 */
 
-	void RobotPeriodic()
+	/*void RobotPeriodic()
 	{
 		SmartDashboard::PutNumber("DB/Slider 2", accel->GetY());
 		SmartDashboard::PutNumber("DB/Slider 3", gyro->GetAngle());
-	}
+	}*/
 
 	void AutonomousInit()
 	{
@@ -397,7 +407,7 @@ private:
 		steven->SetClosedLoopControl(true); //Caleb: A+
 		SmartDashboard::PutNumber("DB/Slider 0", accel->GetX());
 		SmartDashboard::PutNumber("DB/Slider 1", accel->GetY());
-		SmartDashboard::PutNumber("DB/Slider 2", accel->GetZ());
+//		SmartDashboard::PutNumber("DB/Slider 2", accel->GetZ());
 		SmartDashboard::PutNumber("DB/Slider 3", gyro->GetAngle());
 		//frame = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 
@@ -562,17 +572,17 @@ private:
 
 		if(driveStick->GetRawButton(6)) {
 			if(rightY > threshold && switch3->Get()) {
-				arm1->Set(rightY);
+				arm1->Set(rightY / 1.5);
 			} else if(rightY < threshold && switch4->Get()) {
-				arm1->Set(rightY);
+				arm1->Set(rightY / 2);
 			} else {
 				arm1->Set(0);
 			}
 		} else if(manipulatorStick->GetRawButton(6)) {
 			if(mRightY > threshold && switch3->Get()) {
-				arm1->Set(mRightY);
+				arm1->Set(mRightY / 1.5);
 			} else if(mRightY < threshold && switch4->Get()) {
-				arm1->Set(mRightY);
+				arm1->Set(mRightY / 2);
 			} else {
 				arm1->Set(0);
 			}
@@ -715,11 +725,21 @@ private:
 		}
 
 		if(driveStick->GetRawButton(7)){
-			winch2->Set(-.5);
+			winch2->Set(-.8);
 		} else if(driveStick->GetRawButton(8)){
-			winch2->Set(.5);
+			winch2->Set(.8);
+		} else if(manipulatorStick->GetRawButton(7)){
+			winch2->Set(-.8);
+		} else if(manipulatorStick->GetRawButton(8)){
+			winch2->Set(.8);
 		} else {
-			winch2->Set(0);
+			winch2->Set(-0.1);
+		}
+
+		if(switch1->Get() == false) {
+			shooterPos = 0;
+		} else {
+			shooterPos = shooterPos - winch->Get();
 		}
 
 		if(sonic->GetVoltage() < 0.12) {
@@ -728,14 +748,66 @@ private:
 			SmartDashboard::PutString("DB/String 9", "Feed me, please!");
 		}
 
+		SmartDashboard::PutNumber("DB/Slider 2", shooterPos);
+
 		//SmartDashboard::PutNumber("DB/Slider 1", sonic->GetVoltage());
 	}//:D
 
+	void TestInit()
+	{
+		COGX = roboRealm->GetNumber("COG_X", -1.0);
+		COGY = roboRealm->GetNumber("COG_Y", -1.0);
+		centerPos = imageWidth / 2 - COGX;
+		turnDistance = centerPos / 10;
+	}
+
 	void TestPeriodic()
 	{
-		lw->Run();
+		turnDistance = (centerPos / 10) - gyro->GetAngle();
+		SmartDashboard::PutNumber("DB/Slider 2", shooterPos);
 
-		buttonVal0 = SmartDashboard::GetBoolean("DB/Button 0", false);
+		if(COGX != -1) {
+			if(turnDistance > 1.5) {
+				lDrive1->Set(0);
+				rDrive1->Set(0.45);
+				lDrive2->Set(0);
+				rDrive2->Set(0.45);
+			} else if(turnDistance < -1.5) {
+				lDrive1->Set(-0.45);
+				rDrive1->Set(0);
+				lDrive2->Set(-0.45);
+				rDrive2->Set(0);
+			} else {
+				COGX = roboRealm->GetNumber("COG_X", -1.0);
+				COGY = roboRealm->GetNumber("COG_Y", -1.0);
+				centerPos = imageWidth / 2 - COGX;
+				turnDistance = (centerPos / 10) - gyro->GetAngle();
+			}
+		} else {
+			printf("Aaaaaaand it's broke. ");
+		}
+
+		if(shooterPos < 90) {
+			winch->Set(-1);
+		} else if(fabs(turnDistance) < 1.5) {
+			winch->Set(0);
+			shooter1->Set(-0.8);
+			shooter2->Set(0.8);
+			Wait(0.5);
+			william->Set(DoubleSolenoid::Value::kReverse);
+		} else {
+			winch->Set(0);
+		}
+
+		if(switch1->Get() == false) {
+			shooterPos = 0;
+		} else {
+			shooterPos = shooterPos - winch->Get();
+		}
+
+		//lw->Run();
+
+/*		buttonVal0 = SmartDashboard::GetBoolean("DB/Button 0", false);
 		buttonVal1 = SmartDashboard::GetBoolean("DB/Button 1", false);
 		buttonVal2 = SmartDashboard::GetBoolean("DB/Button 2", false);
 		buttonVal3 = SmartDashboard::GetBoolean("DB/Button 3", false);
@@ -744,7 +816,7 @@ private:
 			william->Set(DoubleSolenoid::Value::kReverse);
 		} else if(buttonVal1) {
 			william->Set(DoubleSolenoid::Value::kForward);
-		}
+		}*/
 
 	}
 
@@ -758,7 +830,7 @@ private:
 		fieldPos = SmartDashboard::GetNumber("DB/Slider 0", 0.0);
 
 		SmartDashboard::PutNumber("DB/Slider 3", gyro->GetAngle());
-		SmartDashboard::PutNumber("DB/Slider 2", accel->GetY());
+//		SmartDashboard::PutNumber("DB/Slider 2", accel->GetY());
 		SmartDashboard::PutNumber("DB/Slider 0", accel->GetX());
 		SmartDashboard::PutNumber("DB/Slider 1", accel->GetY());
 
