@@ -27,6 +27,7 @@ class Robot: public IterativeRobot
 	DigitalInput *switch2;
 	DigitalInput *switch3;
 	DigitalInput *switch4;
+	AnalogInput *optical;
 	AnalogInput *sonic;
 	ADXRS450_Gyro *gyro;
 	ADXL362 *accel;
@@ -65,6 +66,7 @@ public:
 		switch2 = new DigitalInput(1);
 		switch3 = new DigitalInput(2);
 		switch4 = new DigitalInput(3);
+		optical = new AnalogInput(1);
 		sonic = new AnalogInput(0);
 		gyro = new ADXRS450_Gyro();
 		accel = new ADXL362();
@@ -122,7 +124,7 @@ private:
 	double centerPos = 0;
 	double turnDistance = 0;
 	double shooterPos = 0;
-	bool kill = false;
+	double shootCount = 0;
 	std::shared_ptr<NetworkTable> roboRealm;
 	//double gearRatio = 18.75;
 	//double gearRatio = 15.32;
@@ -151,8 +153,8 @@ private:
 		/*frame = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 		imaqColorThreshold(frame2, frame, 0, 0, Range(0), Range(255), Range(0);*/
 
-		CameraServer::GetInstance()->SetQuality(50);
-		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
+//		CameraServer::GetInstance()->SetQuality(30);
+//		CameraServer::GetInstance()->StartAutomaticCapture("cam1");
 
 		/*chooser = new SendableChooser();
 		chooser->AddDefault(autoNameDefault, (void*)&autoNameDefault);
@@ -349,7 +351,7 @@ private:
 			flipper->Set(DoubleSolenoid::Value::kReverse);
 		}
 
-		if(fieldPos > 3) {
+		/*if(fieldPos > 3) {
 			lDrive1->Set(-0.45);
 			rDrive1->Set(-0.45);
 			lDrive2->Set(-0.45);
@@ -359,7 +361,7 @@ private:
 			rDrive1->Set(0.45);
 			lDrive2->Set(0.45);
 			rDrive2->Set(0.45);
-		}
+		}*/
 
 		if(action == 2) {
 			COGX = roboRealm->GetNumber("COG_X", -1.0);
@@ -419,16 +421,16 @@ private:
 				printf("Aaaaaaand it's broke. ");
 			}
 
-			if(shooterPos < 90) {
+			/*if(shooterPos < 90) {
 				winch->Set(-1);
-			} else if(fabs(turnDistance) < 1.5) {
+			} else */if(fabs(turnDistance) < 1.5) {
 				winch->Set(0);
 				shooter1->Set(-0.75);
 				shooter2->Set(0.75);
 				Wait(0.5);
 				william->Set(DoubleSolenoid::Value::kReverse);
 			} else {
-				winch->Set(0);
+				winch->Set(-0.05);
 			}
 
 			if(switch1->Get() == false) {
@@ -436,6 +438,8 @@ private:
 			} else {
 				shooterPos = shooterPos - winch->Get();
 			}
+			Wait(0.005);
+
 		}
 
 		/*if(action == 0) { //Drive
@@ -729,7 +733,7 @@ private:
 				}
 			}
 		} else {*/
-		if(fabs(rightTrigger)> threshold) {
+		/*if(fabs(rightTrigger)> threshold) {
 			shooter1->Set(-rightTrigger / 1.25);
 			shooter2->Set(rightTrigger / 1.25);
 		} else if(fabs(mRightTrigger) > threshold) {
@@ -748,7 +752,9 @@ private:
 		} else {
 			shooter1->Set(0);
 			shooter2->Set(0);
-		}
+			manipulatorStick->SetRumble(manipulatorStick->kLeftRumble, 0);
+			manipulatorStick->SetRumble(manipulatorStick->kRightRumble, 0);
+		}*/
 		//}
 
 
@@ -772,14 +778,85 @@ private:
 			william->Set(DoubleSolenoid::Value::kForward);
 		}*/
 
-		if(dRight || manipulatorStick->GetPOV() == 90) {
-			driveStick->SetRumble(driveStick->kLeftRumble, 0.5);
-			driveStick->SetRumble(driveStick->kRightRumble, 0.5);
+		if(dRight) {
+			turnDistance = (centerPos / 10) - gyro->GetAngle();
+					//SmartDashboard::PutNumber("DB/Slider 2", shooterPos);
+					COGX = (SmartDashboard::GetNumber("COG_X", -1.0) + 55);
+
+					if(COGX != -1) {
+						if(COGX < 150) {
+							lDrive1->Set(0.25);
+							rDrive1->Set(0.25);
+							lDrive2->Set(0.25);
+							rDrive2->Set(0.25);
+						} else if(COGX > 210) {
+							lDrive1->Set(-0.25);
+							rDrive1->Set(-0.25);
+							lDrive2->Set(-0.25);
+							rDrive2->Set(-0.25);
+
+						} else if(COGX < 170 && COGX > 150) {
+							lDrive1->Set(0.15);
+							rDrive1->Set(0.15);
+							lDrive2->Set(0.15);
+							rDrive2->Set(0.15);
+						} else if(COGX > 190 && COGX > 210) {
+							lDrive1->Set(-0.15);
+							rDrive1->Set(-0.15);
+							lDrive2->Set(-0.15);
+							rDrive2->Set(-0.15);
+						} else {
+							lDrive1->Set(0);
+							rDrive1->Set(0);
+							lDrive2->Set(0);
+							rDrive2->Set(0);
+						}
+					}
+
+			if(COGX > 165 && COGX < 195) {
+						winch->Set(0);
+						shooter1->Set(-0.8);
+						shooter2->Set(0.8);
+						shootCount = shootCount + 1;
+						if(shootCount > 5) {
+							lDrive1->Set(0);
+							rDrive1->Set(0);
+							lDrive2->Set(0);
+							rDrive2->Set(0);
+							driveStick->SetRumble(driveStick->kLeftRumble, 0.5);
+							driveStick->SetRumble(driveStick->kRightRumble, 0.5);
+							Wait(0.5);
+							william->Set(DoubleSolenoid::Value::kReverse);
+						}
+					} else {
+						winch->Set(0);
+					}
+			//driveStick->SetRumble(driveStick->kLeftRumble, 0.5);
+			//driveStick->SetRumble(driveStick->kRightRumble, 0.5);
 			//manualShoot = true;
-		} else if(dLeft || manipulatorStick->GetPOV() == 270) {
-			driveStick->SetRumble(driveStick->kLeftRumble, 0);
-			driveStick->SetRumble(driveStick->kRightRumble, 0);
-			//manualShoot = false;
+		} else {
+			if(fabs(rightTrigger)> threshold) {
+						shooter1->Set(-rightTrigger / 1.25);
+						shooter2->Set(rightTrigger / 1.25);
+					} else if(fabs(mRightTrigger) > threshold) {
+						shooter1->Set(-mRightTrigger / 1.25);
+						shooter2->Set(mRightTrigger / 1.25);
+						manipulatorStick->SetRumble(manipulatorStick->kLeftRumble, mRightTrigger);
+						manipulatorStick->SetRumble(manipulatorStick->kRightRumble, mRightTrigger);
+					} else if(fabs(leftTrigger)> threshold) {
+						shooter1->Set(leftTrigger / 2.3);
+						shooter2->Set(-leftTrigger / 2.3);
+					} else if(fabs(mLeftTrigger) > threshold) {
+						shooter1->Set(mLeftTrigger / 2.3);
+						shooter2->Set(-mLeftTrigger / 2.3);
+						manipulatorStick->SetRumble(manipulatorStick->kLeftRumble, mLeftTrigger);
+						manipulatorStick->SetRumble(manipulatorStick->kRightRumble, mLeftTrigger);
+					} else {
+						shooter1->Set(0);
+						shooter2->Set(0);
+						manipulatorStick->SetRumble(manipulatorStick->kLeftRumble, 0);
+						manipulatorStick->SetRumble(manipulatorStick->kRightRumble, 0);
+					}
 		}
 
 		/*if(driveStick->GetRawButton(8) && switch1->Get()) {
@@ -800,9 +877,9 @@ private:
 		} else if((manipulatorStick->GetPOV() == 180) && switch1->Get()) {
 			winch->Set(-0.5);
 		} else if(fabs(mLeftY) > threshold) {
-			if(mLeftY > threshold && switch3->Get()) {
+			if(mLeftY > threshold && switch1->Get()) {
 				winch->Set(mLeftY);
-			} else if(mLeftY < threshold && switch4->Get()) {
+			} else if(mLeftY < threshold && switch2->Get()) {
 				winch->Set(mLeftY);
 			}
 		/*} else if(cruise && switch2->Get()) {
@@ -820,13 +897,28 @@ private:
 		} else if(manipulatorStick->GetRawButton(8)){
 			winch2->Set(1);
 		} else {
-			winch2->Set(-0.1);
+			winch2->Set(-0.05);
 		}
 
-		if(switch1->Get() == false) {
+/*		if(switch1->Get() == false) {
 			shooterPos = 0;
 		} else {
 			shooterPos = shooterPos - winch->Get();
+		}*/
+
+		/*if(pencoder->Get()) {
+			if(dUp) {
+				shooterPos = shooterPos + 1;
+			} else if(dDown) {
+				shooterPos = shooterPos - 1;
+			}
+		}*/
+
+		if(dLeft && manipulatorStick->GetPOV() == 270) {
+			arm1->Set(0.6);
+			Wait(1.2);
+			arm1->Set(0);
+			Wait(1);
 		}
 
 		if(sonic->GetVoltage() < 0.12) {
@@ -838,52 +930,103 @@ private:
 		SmartDashboard::PutNumber("DB/Slider 2", shooterPos);
 
 		//SmartDashboard::PutNumber("DB/Slider 1", sonic->GetVoltage());
+
+	Wait(0.005);
 	}//:D
 
 	void TestInit()
 	{
-		COGX = roboRealm->GetNumber("COG_X", -1.0);
-		COGY = roboRealm->GetNumber("COG_Y", -1.0);
-		centerPos = imageWidth / 2 - COGX;
+		COGX = SmartDashboard::GetNumber("COG_X", -1.0) + 55;
+		COGY = SmartDashboard::GetNumber("COG_Y", -1.0);
+		centerPos = 320 / 2 - COGX;
 		turnDistance = centerPos / 10;
+		gyro->Reset();
+		shooter1->Set(0);
+		shooter2->Set(0);
 	}
 
 	void TestPeriodic()
 	{
 		turnDistance = (centerPos / 10) - gyro->GetAngle();
 		SmartDashboard::PutNumber("DB/Slider 2", shooterPos);
+		COGX = (SmartDashboard::GetNumber("COG_X", -1.0) + 55);
 
 		if(COGX != -1) {
-			if(turnDistance > 1.5) {
-				lDrive1->Set(-0.45);
-				rDrive1->Set(0.45);
-				lDrive2->Set(-0.45);
-				rDrive2->Set(0.45);
-			} else if(turnDistance < -1.5) {
-				lDrive1->Set(-0.45);
-				rDrive1->Set(0.45);
-				lDrive2->Set(-0.45);
-				rDrive2->Set(0.45);
+			if(COGX < 150) {
+				lDrive1->Set(0.25);
+				rDrive1->Set(0.25);
+				lDrive2->Set(0.25);
+				rDrive2->Set(0.25);
+			} else if(COGX > 210) {
+				lDrive1->Set(-0.25);
+				rDrive1->Set(-0.25);
+				lDrive2->Set(-0.25);
+				rDrive2->Set(-0.25);
+
+			} else if(COGX < 170 && COGX > 150) {
+				lDrive1->Set(0.15);
+				rDrive1->Set(0.15);
+				lDrive2->Set(0.15);
+				rDrive2->Set(0.15);
+			} else if(COGX > 190 && COGX > 210) {
+				lDrive1->Set(-0.15);
+				rDrive1->Set(-0.15);
+				lDrive2->Set(-0.15);
+				rDrive2->Set(-0.15);
 			} else {
-				COGX = roboRealm->GetNumber("COG_X", -1.0);
-				COGY = roboRealm->GetNumber("COG_Y", -1.0);
-				centerPos = imageWidth / 2 - COGX;
-				turnDistance = (centerPos / 10) - gyro->GetAngle();
+				lDrive1->Set(0);
+				rDrive1->Set(0);
+				lDrive2->Set(0);
+				rDrive2->Set(0);
 			}
+		}
+			/*if(turnDistance < -1.5) {
+				lDrive1->Set(0.25);
+				rDrive1->Set(0.25);
+				lDrive2->Set(0.25);
+				rDrive2->Set(0.25);
+			} else if(turnDistance > 1.5) {
+				lDrive1->Set(-0.25);
+				rDrive1->Set(-0.25);
+				lDrive2->Set(-0.25);
+				rDrive2->Set(-0.25);
+			} else if(turnDistance < -0.75) {
+				lDrive1->Set(0.1);
+				rDrive1->Set(0.1);
+				lDrive2->Set(0.1);
+				rDrive2->Set(0.1);
+			} else if(turnDistance > 0.75) {
+				lDrive1->Set(-0.1);
+				rDrive1->Set(-0.1);
+				lDrive2->Set(-0.1);
+				rDrive2->Set(-0.1);
+			}// else {
+				/*COGX = SmartDashboard::GetNumber("COG_X", -1.0);
+				COGY = SmartDashboard::GetNumber("COG_Y", -1.0);
+				centerPos = imageWidth / 2 - COGX;
+				turnDistance = (centerPos / 10) + gyro->GetAngle();
+			//}
 		} else {
 			printf("Aaaaaaand it's broke. ");
 		}
 
-		if(shooterPos < 70) {
+		/*if(shooterPos < 70) {
 			winch->Set(-1);
-		} else if(fabs(turnDistance) < 1.5) {
+		} else */if(COGX > 165 && COGX < 195) {
 			winch->Set(0);
-			/*shooter1->Set(-0.75);
-			shooter2->Set(0.75);*/
-			driveStick->SetRumble(driveStick->kLeftRumble, 0.5);
-			driveStick->SetRumble(driveStick->kRightRumble, 0.5);
-			Wait(0.5);
-			william->Set(DoubleSolenoid::Value::kReverse);
+			shooter1->Set(-0.8);
+			shooter2->Set(0.8);
+			shootCount = shootCount + 1;
+			if(shootCount > 5) {
+				lDrive1->Set(0);
+				rDrive1->Set(0);
+				lDrive2->Set(0);
+				rDrive2->Set(0);
+				driveStick->SetRumble(driveStick->kLeftRumble, 0.5);
+				driveStick->SetRumble(driveStick->kRightRumble, 0.5);
+				Wait(0.5);
+				william->Set(DoubleSolenoid::Value::kReverse);
+			}
 		} else {
 			winch->Set(0);
 		}
@@ -916,11 +1059,12 @@ private:
 		buttonVal2 = SmartDashboard::GetBoolean("DB/Button 2", false);
 		buttonVal3 = SmartDashboard::GetBoolean("DB/Button 3", false);
 		SmartDashboard::PutString("DB/String 6", "Position: Slider 0");
-		fieldPos = SmartDashboard::GetNumber("DB/Slider 0", 0.0);
+//		fieldPos = SmartDashboard::GetNumber("DB/Slider 0", 0.0);
 
 		SmartDashboard::PutNumber("DB/Slider 3", gyro->GetAngle());
 //		SmartDashboard::PutNumber("DB/Slider 2", accel->GetY());
-		SmartDashboard::PutNumber("DB/Slider 0", accel->GetX());
+//		SmartDashboard::PutNumber("DB/Slider 0", accel->GetX());
+		SmartDashboard::PutNumber("DB/Slider 0", optical->GetVoltage());
 		SmartDashboard::PutNumber("DB/Slider 1", accel->GetY());
 
 		driveStick->SetRumble(driveStick->kLeftRumble, 0);
@@ -1117,6 +1261,11 @@ private:
 				dir = 43;
 			}
 		}*/
+
+//		while(IsDisabled())
+//		{
+			Wait(0.005);
+//		}
 	}
 };
 
