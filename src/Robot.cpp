@@ -19,6 +19,7 @@ class Robot: public IterativeRobot
 	//DoubleSolenoid *rShifter;
 	DoubleSolenoid *william;
 	DoubleSolenoid *flipper;
+	DoubleSolenoid *pos;
 	//DoubleSolenoid *flipper2;
 	Joystick *driveStick;
 	Joystick *manipulatorStick;
@@ -27,7 +28,7 @@ class Robot: public IterativeRobot
 	DigitalInput *switch2;
 	DigitalInput *switch3;
 	DigitalInput *switch4;
-	AnalogInput *optical;
+	DigitalInput *optical;
 	AnalogInput *sonic;
 	ADXRS450_Gyro *gyro;
 	ADXL362 *accel;
@@ -58,6 +59,7 @@ public:
 		lShifter = new DoubleSolenoid(0,1);
 		william = new DoubleSolenoid(2,3);
 		flipper = new DoubleSolenoid(4,5);
+		pos = new DoubleSolenoid(6,7);
 		//rShifter = new DoubleSolenoid(6,7);
 		driveStick = new Joystick(0);
 		manipulatorStick = new Joystick(1);
@@ -66,7 +68,7 @@ public:
 		switch2 = new DigitalInput(1);
 		switch3 = new DigitalInput(2);
 		switch4 = new DigitalInput(3);
-		optical = new AnalogInput(1);
+		optical = new DigitalInput(4);
 		sonic = new AnalogInput(0);
 		gyro = new ADXRS450_Gyro();
 		accel = new ADXL362();
@@ -869,9 +871,11 @@ private:
 			winch->Set(-0.5);
 		} else */
 		if(dUp && switch2->Get()) {
-			winch->Set(0.5);
+//			winch->Set(0.5);
+			pos->Set(DoubleSolenoid::Value::kReverse);
 		} else if(dDown && switch1->Get()) {
-			winch->Set(-0.5);
+//			winch->Set(-0.5);
+			pos->Set(DoubleSolenoid::Value::kForward);
 		} else if((manipulatorStick->GetPOV() == 0) && switch2->Get()) {
 			winch->Set(0.5);
 		} else if((manipulatorStick->GetPOV() == 180) && switch1->Get()) {
@@ -1064,8 +1068,14 @@ private:
 		SmartDashboard::PutNumber("DB/Slider 3", gyro->GetAngle());
 //		SmartDashboard::PutNumber("DB/Slider 2", accel->GetY());
 //		SmartDashboard::PutNumber("DB/Slider 0", accel->GetX());
-		SmartDashboard::PutNumber("DB/Slider 0", optical->GetVoltage());
+//		SmartDashboard::PutNumber("DB/Slider 0", optical->Get());
 		SmartDashboard::PutNumber("DB/Slider 1", accel->GetY());
+
+		if(optical->Get() == true) {
+			SmartDashboard::PutNumber("DB/Slider 0", 5);
+		} else {
+			SmartDashboard::PutNumber("DB/Slider 0", 0);
+		}
 
 		driveStick->SetRumble(driveStick->kLeftRumble, 0);
 		driveStick->SetRumble(driveStick->kRightRumble, 0);
@@ -1264,7 +1274,7 @@ private:
 
 //		while(IsDisabled())
 //		{
-			Wait(0.005);
+//			Wait(0.005);
 //		}
 	}
 };
