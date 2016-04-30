@@ -11,14 +11,15 @@ class Robot: public IterativeRobot
 	CANTalon *arm1;
 	CANTalon *shooter1;
 	CANTalon *shooter2;
-	CANTalon *winch;
-	Talon *winch2;
+	CANTalon *liftArm;
+	Talon *winch;
 	//CANTalon *flipper;
 	//CANTalon *flipper2;
 	DoubleSolenoid *lShifter;
 	//DoubleSolenoid *rShifter;
 	DoubleSolenoid *william;
 	DoubleSolenoid *flipper;
+	DoubleSolenoid *lifter;
 	//DoubleSolenoid *flipper2;
 	Joystick *driveStick;
 	Joystick *manipulatorStick;
@@ -51,14 +52,14 @@ public:
 		arm1 = new CANTalon(5);
 		shooter1 = new CANTalon(6);
 		shooter2 = new CANTalon(7);
-		winch = new CANTalon(8);
-		winch2 = new Talon(0);
+		liftArm = new CANTalon(8);
+		winch = new Talon(0);
 		//flipper = new CANTalon(7);
 		//flipper2 = new CANTalon(8);
 		lShifter = new DoubleSolenoid(0,1);
 		william = new DoubleSolenoid(2,3);
 		flipper = new DoubleSolenoid(4,5);
-		//rShifter = new DoubleSolenoid(6,7);
+		lifter = new DoubleSolenoid(6,7);
 		driveStick = new Joystick(0);
 		manipulatorStick = new Joystick(1);
 		steven = new Compressor(0);
@@ -422,21 +423,21 @@ private:
 			}
 
 			/*if(shooterPos < 90) {
-				winch->Set(-1);
+				liftArm->Set(-1);
 			} else */if(fabs(turnDistance) < 1.5) {
-				winch->Set(0);
+				liftArm->Set(0);
 				shooter1->Set(-0.75);
 				shooter2->Set(0.75);
 				Wait(0.5);
 				william->Set(DoubleSolenoid::Value::kReverse);
 			} else {
-				winch->Set(-0.05);
+				liftArm->Set(-0.05);
 			}
 
 			if(switch1->Get() == false) {
 				shooterPos = 0;
 			} else {
-				shooterPos = shooterPos - winch->Get();
+				shooterPos = shooterPos - liftArm->Get();
 			}
 			Wait(0.005);
 
@@ -541,14 +542,15 @@ private:
 		}
 
 		if(driveStick->GetPOV() == 0) {
-			dUp = true;
+			lifter->Set(DoubleSolenoid::Value::kForward);
+			/*dUp = true;
 			dRight = false;
 			dDown = false;
 			dLeft = false;
 			dUpR = false;
 			dUpL = false;
 			dDownR = false;
-			dDownL = false;
+			dDownL = false;*/
 		} else if(driveStick->GetPOV() == 90) {
 			dUp = false;
 			dRight = true;
@@ -559,14 +561,15 @@ private:
 			dDownR = false;
 			dDownL = false;
 		} else if(driveStick->GetPOV() == 180) {
-			dUp = false;
+			lifter->Set(DoubleSolenoid::Value::kReverse);
+			/*dUp = false;
 			dRight = false;
 			dDown = true;
 			dLeft = false;
 			dUpR = false;
 			dUpL = false;
 			dDownR = false;
-			dDownL = false;
+			dDownL = false;*/
 		} else if(driveStick->GetPOV() == 270) {
 			dUp = false;
 			dRight = false;
@@ -646,8 +649,13 @@ private:
 			//rShifter->Set(DoubleSolenoid::Value::kReverse);
 		}
 
+		if (driveStick->GetPOV() == 0) {
+		lifter->Set(DoubleSolenoid::Value::kForward);
+		} else if (driveStick->GetPOV() == 180) {
+			lifter->Set(DoubleSolenoid::Value::kReverse);
+		}
 
-		if(driveStick->GetRawButton(6)) {
+		/*if(driveStick->GetRawButton(6)) {
 			if(rightY > threshold && switch3->Get()) {
 				arm1->Set(rightY / 1.5);
 			} else if(rightY < threshold && switch4->Get()) {
@@ -657,15 +665,19 @@ private:
 			}
 		} else if(manipulatorStick->GetRawButton(6)) {
 			if(mRightY > threshold && switch3->Get()) {
-				arm1->Set(mRightY / 1.5);
+				//arm1->Set(mRightY / 1.5);
+				lifter->Set(DoubleSolenoid::Value::kForward);
 			} else if(mRightY < threshold && switch4->Get()) {
-				arm1->Set(mRightY / 2);
+				//arm1->Set(mRightY / 2);
+				lifter->Set(DoubleSolenoid::Value::kForward);
 			} else {
-				arm1->Set(0);
+				//arm1->Set(0);
+				lifter->Set(DoubleSolenoid::Value::kReverse);
 			}
 		} else {
-			arm1->Set(0);
-		}
+			//arm1->Set(0);
+			lifter->Set(DoubleSolenoid::Value::kReverse);
+		}*/
 /*		if(manipulatorStick->GetRawButton(5)) {
 			arm2->Set(mLeftY);
 		} else if(driveStick->GetRawButton(5)) {
@@ -814,7 +826,7 @@ private:
 					}
 
 			if(COGX > 165 && COGX < 195) {
-						winch->Set(0);
+						liftArm->Set(0);
 						shooter1->Set(-0.8);
 						shooter2->Set(0.8);
 						shootCount = shootCount + 1;
@@ -829,7 +841,7 @@ private:
 							william->Set(DoubleSolenoid::Value::kReverse);
 						}
 					} else {
-						winch->Set(0);
+						liftArm->Set(0);
 					}
 			//driveStick->SetRumble(driveStick->kLeftRumble, 0.5);
 			//driveStick->SetRumble(driveStick->kRightRumble, 0.5);
@@ -860,50 +872,50 @@ private:
 		}
 
 		/*if(driveStick->GetRawButton(8) && switch1->Get()) {
-			winch->Set(0.5);
+			liftArm->Set(0.5);
 		} else if(driveStick->GetRawButton(7) && switch2->Get()) {
-			winch->Set(-0.5);
+			liftArm->Set(-0.5);
 		} else if(manipulatorStick->GetRawButton(8) && switch1->Get()) {
-			winch->Set(0.5);
+			liftArm->Set(0.5);
 		} else if(manipulatorStick->GetRawButton(7) && switch2->Get()) {
-			winch->Set(-0.5);
+			liftArm->Set(-0.5);
 		} else */
 		if(dUp && switch2->Get()) {
-			winch->Set(0.5);
+			liftArm->Set(0.5);
 		} else if(dDown && switch1->Get()) {
-			winch->Set(-0.5);
+			liftArm->Set(-0.5);
 		} else if((manipulatorStick->GetPOV() == 0) && switch2->Get()) {
-			winch->Set(0.5);
+			liftArm->Set(0.5);
 		} else if((manipulatorStick->GetPOV() == 180) && switch1->Get()) {
-			winch->Set(-0.5);
+			liftArm->Set(-0.5);
 		} else if(fabs(mLeftY) > threshold) {
 			if(mLeftY > threshold && switch1->Get()) {
-				winch->Set(mLeftY);
+				liftArm->Set(mLeftY);
 			} else if(mLeftY < threshold && switch2->Get()) {
-				winch->Set(mLeftY);
+				liftArm->Set(mLeftY);
 			}
 		/*} else if(cruise && switch2->Get()) {
-			winch->Set(-0.05);*/
+			liftArm->Set(-0.05);*/
 		} else {
-			winch->Set(0);
+			liftArm->Set(0);
 		}
 
 		if(driveStick->GetRawButton(7)){
-			winch2->Set(-1);
+			winch->Set(-1);
 		} else if(driveStick->GetRawButton(8)){
-			winch2->Set(1);
+			winch->Set(1);
 		} else if(manipulatorStick->GetRawButton(7)){
-			winch2->Set(-1);
+			winch->Set(-1);
 		} else if(manipulatorStick->GetRawButton(8)){
-			winch2->Set(1);
+			winch->Set(1);
 		} else {
-			winch2->Set(-0.05);
+			winch->Set(-0.05);
 		}
 
 /*		if(switch1->Get() == false) {
 			shooterPos = 0;
 		} else {
-			shooterPos = shooterPos - winch->Get();
+			shooterPos = shooterPos - liftArm->Get();
 		}*/
 
 		/*if(pencoder->Get()) {
@@ -1011,9 +1023,9 @@ private:
 		}
 
 		/*if(shooterPos < 70) {
-			winch->Set(-1);
+			liftArm->Set(-1);
 		} else */if(COGX > 165 && COGX < 195) {
-			winch->Set(0);
+			liftArm->Set(0);
 			shooter1->Set(-0.8);
 			shooter2->Set(0.8);
 			shootCount = shootCount + 1;
@@ -1028,13 +1040,13 @@ private:
 				william->Set(DoubleSolenoid::Value::kReverse);
 			}
 		} else {
-			winch->Set(0);
+			liftArm->Set(0);
 		}
 
 		if(switch1->Get() == false) {
 			shooterPos = 0;
 		} else {
-			shooterPos = shooterPos - winch->Get();
+			shooterPos = shooterPos - liftArm->Get();
 		}
 
 		//lw->Run();
