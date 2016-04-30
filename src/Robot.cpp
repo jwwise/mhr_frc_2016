@@ -1,6 +1,21 @@
 #include "WPILib.h"
 //#include <iostream>
 
+/*
+*What the things do:
+
+lshifter = Left Shifter
+william = Right Shifter
+lDrive = Left Drive 1 and 2
+rDrive = Right Drive 1 and 2
+arm1 =
+shooter1m = shooter motor 1
+shooter2m = shooter motor 2
+winch = arm delivery system for climbing
+winch2 = Robot Lifting Winch
+flipper = ball piston
+shooterUD = shooter up and down pistons
+*/
 
 class Robot: public IterativeRobot
 {
@@ -9,8 +24,8 @@ class Robot: public IterativeRobot
 	CANTalon *rDrive1;
 	CANTalon *rDrive2;
 	CANTalon *arm1;
-	CANTalon *shooter1;
-	CANTalon *shooter2;
+	CANTalon *shooter1m;
+	CANTalon *shooter2m;
 	CANTalon *winch;
 	Talon *winch2;
 	//CANTalon *flipper;
@@ -19,6 +34,7 @@ class Robot: public IterativeRobot
 	//DoubleSolenoid *rShifter;
 	DoubleSolenoid *william;
 	DoubleSolenoid *flipper;
+	DoubleSolenoid *shooterUD;
 	//DoubleSolenoid *flipper2;
 	Joystick *driveStick;
 	Joystick *manipulatorStick;
@@ -49,8 +65,8 @@ public:
 		rDrive1 = new CANTalon(3);
 		rDrive2 = new CANTalon(4);
 		arm1 = new CANTalon(5);
-		shooter1 = new CANTalon(6);
-		shooter2 = new CANTalon(7);
+		shooter1m = new CANTalon(6);
+		shooter2m= new CANTalon(7);
 		winch = new CANTalon(8);
 		winch2 = new Talon(0);
 		//flipper = new CANTalon(7);
@@ -58,7 +74,7 @@ public:
 		lShifter = new DoubleSolenoid(0,1);
 		william = new DoubleSolenoid(2,3);
 		flipper = new DoubleSolenoid(4,5);
-		//rShifter = new DoubleSolenoid(6,7);
+		shooterUD = new DoubleSolenoid(6,7);
 		driveStick = new Joystick(0);
 		manipulatorStick = new Joystick(1);
 		steven = new Compressor(0);
@@ -142,8 +158,8 @@ private:
 
 	void shoot(double speed = 0)
 	{
-		shooter1->Set(speed);
-		shooter2->Set(-speed);
+		shooter1m->Set(speed);
+		shooter2m->Set(-speed);
 	}*/
 
 	void RobotInit() override
@@ -221,8 +237,8 @@ private:
 			rDrive1->Set(0);
 			lDrive2->Set(0);
 			rDrive2->Set(0);
-			shooter1->Set(0.4);
-			shooter2->Set(-0.4);
+			shooter1m->Set(0.4);
+			shooter2m->Set(-0.4);
 			flipper->Set(DoubleSolenoid::Value::kReverse);
 			Wait(2);
 			william->Set(DoubleSolenoid::Value::kReverse);
@@ -425,8 +441,8 @@ private:
 				winch->Set(-1);
 			} else */if(fabs(turnDistance) < 1.5) {
 				winch->Set(0);
-				shooter1->Set(-0.75);
-				shooter2->Set(0.75);
+				shooter1m->Set(-0.75);
+				shooter2m->Set(0.75);
 				Wait(0.5);
 				william->Set(DoubleSolenoid::Value::kReverse);
 			} else {
@@ -481,7 +497,7 @@ private:
 		//distance = (sonicIn->GetRaw() * inches);
 		//sonicOut->Pulse(10);
 
-		leftX = driveStick->GetRawAxis(0);
+	leftX = driveStick->GetRawAxis(0);
 		if(fabs(leftX) < threshold)
 			leftX = 0;
 		leftY = driveStick->GetRawAxis(1);
@@ -541,14 +557,15 @@ private:
 		}
 
 		if(driveStick->GetPOV() == 0) {
-			dUp = true;
+			shooterUD->Set(DoubleSolenoid::Value::kForward);
+			/*dUp = true;
 			dRight = false;
 			dDown = false;
 			dLeft = false;
 			dUpR = false;
 			dUpL = false;
 			dDownR = false;
-			dDownL = false;
+			dDownL = false;*/
 		} else if(driveStick->GetPOV() == 90) {
 			dUp = false;
 			dRight = true;
@@ -559,14 +576,15 @@ private:
 			dDownR = false;
 			dDownL = false;
 		} else if(driveStick->GetPOV() == 180) {
-			dUp = false;
+			shooterUD->Set(DoubleSolenoid::Value::kReverse);
+			/*dUp = false;
 			dRight = false;
 			dDown = true;
 			dLeft = false;
 			dUpR = false;
 			dUpL = false;
 			dDownR = false;
-			dDownL = false;
+			dDownL = false;*/
 		} else if(driveStick->GetPOV() == 270) {
 			dUp = false;
 			dRight = false;
@@ -646,26 +664,44 @@ private:
 			//rShifter->Set(DoubleSolenoid::Value::kReverse);
 		}
 
+		if (driveStick->GetPOV() == 0) {
+		shooterUD->Set(DoubleSolenoid::Value::kForward);
+		} else if (driveStick->GetPOV() == 180) {
+			shooterUD->Set(DoubleSolenoid::Value::kReverse);
+		}
 
+
+		// thing that takes the hook to the bar thingy
 		if(driveStick->GetRawButton(6)) {
 			if(rightY > threshold && switch3->Get()) {
-				arm1->Set(rightY / 1.5);
+				arm1->Set(rightY / 1);
 			} else if(rightY < threshold && switch4->Get()) {
-				arm1->Set(rightY / 2);
+				arm1->Set(rightY / 1);
 			} else {
 				arm1->Set(0);
 			}
 		} else if(manipulatorStick->GetRawButton(6)) {
 			if(mRightY > threshold && switch3->Get()) {
-				arm1->Set(mRightY / 1.5);
-			} else if(mRightY < threshold && switch4->Get()) {
-				arm1->Set(mRightY / 2);
+				arm1->Set(mRightY / 1);
+			} else if(rightY < threshold && switch4->Get()) {
+				arm1->Set(rightY / 1);
 			} else {
 				arm1->Set(0);
 			}
-		} else {
-			arm1->Set(0);
-		}
+//end of thing that takes the hook to the bar thingy
+
+				shooterUD->Set(DoubleSolenoid::Value::kForward);
+			} else if(mRightY < threshold && switch4->Get()) {
+				//arm1->Set(mRightY / 2);
+				shooterUD->Set(DoubleSolenoid::Value::kForward);
+			} else {
+				//arm1->Set(0);
+				shooterUD->Set(DoubleSolenoid::Value::kReverse);
+			}
+		/*} else {
+			//arm1->Set(0);
+			shooterUD->Set(DoubleSolenoid::Value::kReverse);
+		}*/
 /*		if(manipulatorStick->GetRawButton(5)) {
 			arm2->Set(mLeftY);
 		} else if(driveStick->GetRawButton(5)) {
@@ -700,58 +736,58 @@ private:
 		/*if(manualShoot) {
 			if(driveStick->GetRawButton(8)) {
 				if(fabs(rightTrigger)> threshold) {
-					shooter1->Set(rightTrigger / 2.5);
+					shooter1m->Set(rightTrigger / 2.5);
 				} else if(fabs(mRightTrigger) > threshold) {
-					shooter1->Set(mRightTrigger / 2.5);
+					shooter1m->Set(mRightTrigger / 2.5);
 				} else {
-					shooter1->Set(0);
+					shooter1m->Set(0);
 				}
 			} else {
 				if(fabs(rightTrigger)> threshold) {
-					shooter1->Set(-rightTrigger / 1.2);
+					shooter1m->Set(-rightTrigger / 1.2);
 				} else if(fabs(mRightTrigger) > threshold) {
-					shooter1->Set(-mRightTrigger / 1.2);
+					shooter1m->Set(-mRightTrigger / 1.2);
 				} else {
-					shooter1->Set(0);
+					shooter1m->Set(0);
 				}
 			}
 			if(driveStick->GetRawButton(7)) {
 				if(fabs(leftTrigger)> threshold) {
-					shooter2->Set(-leftTrigger / 2.5);
+					shooter2m->Set(-leftTrigger / 2.5);
 				} else if(fabs(mLeftTrigger) > threshold) {
-					shooter2->Set(-mLeftTrigger / 2.5);
+					shooter2m->Set(-mLeftTrigger / 2.5);
 				} else {
-					shooter2->Set(0);
+					shooter2m->Set(0);
 				}
 			} else {
 				if(fabs(leftTrigger)> threshold) {
-					shooter2->Set(leftTrigger / 1.2);
+					shooter2m->Set(leftTrigger / 1.2);
 				} else if(fabs(mLeftTrigger) > threshold) {
-					shooter2->Set(mLeftTrigger / 1.2);
+					shooter2m->Set(mLeftTrigger / 1.2);
 				} else {
-					shooter2->Set(0);
+					shooter2m->Set(0);
 				}
 			}
 		} else {*/
 		/*if(fabs(rightTrigger)> threshold) {
-			shooter1->Set(-rightTrigger / 1.25);
-			shooter2->Set(rightTrigger / 1.25);
+			shooter1m->Set(-rightTrigger / 1.25);
+			shooter2m->Set(rightTrigger / 1.25);
 		} else if(fabs(mRightTrigger) > threshold) {
-			shooter1->Set(-mRightTrigger / 1.25);
-			shooter2->Set(mRightTrigger / 1.25);
+			shooter1m->Set(-mRightTrigger / 1.25);
+			shooter2m->Set(mRightTrigger / 1.25);
 			manipulatorStick->SetRumble(manipulatorStick->kLeftRumble, mRightTrigger);
 			manipulatorStick->SetRumble(manipulatorStick->kRightRumble, mRightTrigger);
 		} else if(fabs(leftTrigger)> threshold) {
-			shooter1->Set(leftTrigger / 2.8);
-			shooter2->Set(-leftTrigger / 2.8);
+			shooter1m->Set(leftTrigger / 2.8);
+			shooter2m->Set(-leftTrigger / 2.8);
 		} else if(fabs(mLeftTrigger) > threshold) {
-			shooter1->Set(mLeftTrigger / 2.8);
-			shooter2->Set(-mLeftTrigger / 2.8);
+			shooter1m->Set(mLeftTrigger / 2.8);
+			shooter2m->Set(-mLeftTrigger / 2.8);
 			manipulatorStick->SetRumble(manipulatorStick->kLeftRumble, mLeftTrigger);
 			manipulatorStick->SetRumble(manipulatorStick->kRightRumble, mLeftTrigger);
 		} else {
-			shooter1->Set(0);
-			shooter2->Set(0);
+			shooter1m->Set(0);
+			shooter2m->Set(0);
 			manipulatorStick->SetRumble(manipulatorStick->kLeftRumble, 0);
 			manipulatorStick->SetRumble(manipulatorStick->kRightRumble, 0);
 		}*/
@@ -815,8 +851,8 @@ private:
 
 			if(COGX > 165 && COGX < 195) {
 						winch->Set(0);
-						shooter1->Set(-0.8);
-						shooter2->Set(0.8);
+						shooter1m->Set(-0.8);
+						shooter2m->Set(0.8);
 						shootCount = shootCount + 1;
 						if(shootCount > 5) {
 							lDrive1->Set(0);
@@ -836,24 +872,24 @@ private:
 			//manualShoot = true;
 		} else {
 			if(fabs(rightTrigger)> threshold) {
-						shooter1->Set(-rightTrigger / 1.25);
-						shooter2->Set(rightTrigger / 1.25);
+						shooter1m->Set(-rightTrigger / 1.25);
+						shooter2m->Set(rightTrigger / 1.25);
 					} else if(fabs(mRightTrigger) > threshold) {
-						shooter1->Set(-mRightTrigger / 1.25);
-						shooter2->Set(mRightTrigger / 1.25);
+						shooter1m->Set(-mRightTrigger / 1.25);
+						shooter2m->Set(mRightTrigger / 1.25);
 						manipulatorStick->SetRumble(manipulatorStick->kLeftRumble, mRightTrigger);
 						manipulatorStick->SetRumble(manipulatorStick->kRightRumble, mRightTrigger);
 					} else if(fabs(leftTrigger)> threshold) {
-						shooter1->Set(leftTrigger / 2.3);
-						shooter2->Set(-leftTrigger / 2.3);
+						shooter1m->Set(leftTrigger / 2.3);
+						shooter2m->Set(-leftTrigger / 2.3);
 					} else if(fabs(mLeftTrigger) > threshold) {
-						shooter1->Set(mLeftTrigger / 2.3);
-						shooter2->Set(-mLeftTrigger / 2.3);
+						shooter1m->Set(mLeftTrigger / 2.3);
+						shooter2m->Set(-mLeftTrigger / 2.3);
 						manipulatorStick->SetRumble(manipulatorStick->kLeftRumble, mLeftTrigger);
 						manipulatorStick->SetRumble(manipulatorStick->kRightRumble, mLeftTrigger);
 					} else {
-						shooter1->Set(0);
-						shooter2->Set(0);
+						shooter1m->Set(0);
+						shooter2m->Set(0);
 						manipulatorStick->SetRumble(manipulatorStick->kLeftRumble, 0);
 						manipulatorStick->SetRumble(manipulatorStick->kRightRumble, 0);
 					}
@@ -869,13 +905,13 @@ private:
 			winch->Set(-0.5);
 		} else */
 		if(dUp && switch2->Get()) {
-			winch->Set(0.5);
+			winch->Set(1);
 		} else if(dDown && switch1->Get()) {
-			winch->Set(-0.5);
+			winch->Set(-1);
 		} else if((manipulatorStick->GetPOV() == 0) && switch2->Get()) {
-			winch->Set(0.5);
+			winch->Set(1);
 		} else if((manipulatorStick->GetPOV() == 180) && switch1->Get()) {
-			winch->Set(-0.5);
+			winch->Set(-1);
 		} else if(fabs(mLeftY) > threshold) {
 			if(mLeftY > threshold && switch1->Get()) {
 				winch->Set(mLeftY);
@@ -941,8 +977,8 @@ private:
 		centerPos = 320 / 2 - COGX;
 		turnDistance = centerPos / 10;
 		gyro->Reset();
-		shooter1->Set(0);
-		shooter2->Set(0);
+		shooter1m->Set(0);
+		shooter2m->Set(0);
 	}
 
 	void TestPeriodic()
@@ -1014,8 +1050,8 @@ private:
 			winch->Set(-1);
 		} else */if(COGX > 165 && COGX < 195) {
 			winch->Set(0);
-			shooter1->Set(-0.8);
-			shooter2->Set(0.8);
+			shooter1m->Set(-0.8);
+			shooter2m->Set(0.8);
 			shootCount = shootCount + 1;
 			if(shootCount > 5) {
 				lDrive1->Set(0);
