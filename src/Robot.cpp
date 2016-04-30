@@ -1,6 +1,21 @@
 #include "WPILib.h"
 //#include <iostream>
 
+/*
+*What the things do:
+
+lshifter = Left Shifter
+william = Right Shifter
+lDrive = Left Drive 1 and 2
+rDrive = Right Drive 1 and 2
+arm1 = arm that delivers the hook
+shooter1 = shooter motor 1
+shooter2 = shooter motor 2
+winch = old shooter lift (may be applicable to second robot)
+winch2 = Robot Lifting Winch
+flipper = ball piston
+pos = shooter up and down pistons
+*/
 
 class Robot: public IterativeRobot
 {
@@ -223,8 +238,8 @@ private:
 			rDrive1->Set(0);
 			lDrive2->Set(0);
 			rDrive2->Set(0);
-			shooter1->Set(0.4);
-			shooter2->Set(-0.4);
+			shooter1m->Set(0.4);
+			shooter2m->Set(-0.4);
 			flipper->Set(DoubleSolenoid::Value::kReverse);
 			Wait(2);
 			william->Set(DoubleSolenoid::Value::kReverse);
@@ -649,6 +664,8 @@ private:
 		}
 
 
+
+		// thing that takes the hook to the bar thingy
 		if(driveStick->GetRawButton(6)) {
 			if(rightY > threshold && switch3->Get()) {
 				arm1->Set(rightY / 1.5);
