@@ -127,7 +127,11 @@ private:
 	double turnDistance = 0;
 	double shooterPos = 0;
 	double shootCount = 0;
+	double targetCenter = 150;
+	double minTargetmargin = 6;
+	double maxTargetmargin = -6;
 	std::shared_ptr<NetworkTable> roboRealm;
+	bool testrun = false;
 	//double gearRatio = 18.75;
 	//double gearRatio = 15.32;
 	/*double distance = 0;
@@ -631,7 +635,11 @@ private:
 		lDrive1->Set(leftY + leftX);
 		lDrive2->Set(leftY + leftX);
 
-		if(driveStick->GetRawButton(3)) {
+		//TODO find a better button
+		/*if (driveStick->GetRawButton(7)) {
+			AutoHighGoal();
+		} else
+		*/ if(driveStick->GetRawButton(3)) {
 			lShifter->Set(DoubleSolenoid::Value::kReverse);
 			driveStick->SetRumble(driveStick->kLeftRumble, 1);
 			driveStick->SetRumble(driveStick->kRightRumble, 1);
@@ -941,46 +949,43 @@ private:
 
 	void TestInit()
 	{
-		COGX = roboRealm->GetNumber("COG_X", -1.0);
-		COGY = roboRealm->GetNumber("COG_Y", -1.0);
-		//COGX = SmartDashboard::GetNumber("COG_X", -1.0) + 55;
-		//COGY = SmartDashboard::GetNumber("COG_Y", -1.0);
-		centerPos = 320 / 2 - COGX;
-		turnDistance = centerPos / 10;
-		SmartDashboard::PutNumber("String 4", turnDistance);
-		gyro->Reset();
-		shooter1->Set(0);
-		shooter2->Set(0);
+		testrun = true;
 	}
+
 
 	void TestPeriodic()
 	{
-		turnDistance = (centerPos / 10) - gyro->GetAngle();
-		SmartDashboard::PutNumber("DB/Slider 2", shooterPos);
-		COGX = (SmartDashboard::GetNumber("COG_X", -1.0) + 55);
+		if (!testrun) return;
+
+		AutoHighGoal();
+	}
+
+
+	void AutoHighGoal() {
+		COGX = (SmartDashboard::GetNumber("COG_X", -1.0));
 
 		if(COGX != -1) {
-			if(COGX < 150) {
+			if(COGX < targetCenter - maxTargetmargin) {
 				lDrive1->Set(0.25);
 				rDrive1->Set(0.25);
 				lDrive2->Set(0.25);
 				rDrive2->Set(0.25);
-			} else if(COGX > 210) {
+			} else if(COGX > targetCenter + maxTargetmargin) {
 				lDrive1->Set(-0.25);
 				rDrive1->Set(-0.25);
 				lDrive2->Set(-0.25);
 				rDrive2->Set(-0.25);
 
-			} else if(COGX < 170 && COGX > 150) {
-				lDrive1->Set(0.15);
-				rDrive1->Set(0.15);
-				lDrive2->Set(0.15);
-				rDrive2->Set(0.15);
-			} else if(COGX > 190 && COGX > 210) {
-				lDrive1->Set(-0.15);
-				rDrive1->Set(-0.15);
-				lDrive2->Set(-0.15);
-				rDrive2->Set(-0.15);
+			} else if(COGX < targetCenter - minTargetmargin) {
+				lDrive1->Set(0.1);
+				rDrive1->Set(0.1);
+				lDrive2->Set(0.1);
+				rDrive2->Set(0.1);
+			} else if(COGX > targetCenter + minTargetmargin) {
+				lDrive1->Set(-0.1);
+				rDrive1->Set(-0.1);
+				lDrive2->Set(-0.1);
+				rDrive2->Set(-0.1);
 			} else {
 				lDrive1->Set(0);
 				rDrive1->Set(0);
@@ -988,76 +993,28 @@ private:
 				rDrive2->Set(0);
 			}
 		}
-			/*if(turnDistance < -1.5) {
-				lDrive1->Set(0.25);
-				rDrive1->Set(0.25);
-				lDrive2->Set(0.25);
-				rDrive2->Set(0.25);
-			} else if(turnDistance > 1.5) {
-				lDrive1->Set(-0.25);
-				rDrive1->Set(-0.25);
-				lDrive2->Set(-0.25);
-				rDrive2->Set(-0.25);
-			} else if(turnDistance < -0.75) {
-				lDrive1->Set(0.1);
-				rDrive1->Set(0.1);
-				lDrive2->Set(0.1);
-				rDrive2->Set(0.1);
-			} else if(turnDistance > 0.75) {
-				lDrive1->Set(-0.1);
-				rDrive1->Set(-0.1);
-				lDrive2->Set(-0.1);
-				rDrive2->Set(-0.1);
-			}// else {
-				/*COGX = SmartDashboard::GetNumber("COG_X", -1.0);
-				COGY = SmartDashboard::GetNumber("COG_Y", -1.0);
-				centerPos = imageWidth / 2 - COGX;
-				turnDistance = (centerPos / 10) + gyro->GetAngle();
-			//}
-		} else {
-			printf("Aaaaaaand it's broke. ");
-		}
 
-		/*if(shooterPos < 70) {
-			winch->Set(-1);
-		} else */if(COGX > 165 && COGX < 195) {
-			winch->Set(0);
+		if(COGX > targetCenter - minTargetmargin && COGX < targetCenter + minTargetmargin) {
+			//winch->Set(0);
+			pos->Set(DoubleSolenoid::Value::kForward);
 			shooter1->Set(-0.8);
 			shooter2->Set(0.8);
-			shootCount = shootCount + 1;
-			if(shootCount > 5) {
+			//shootCount = shootCount + 1;
+			//if(shootCount > 5) {
+			Wait(0.2);
 				lDrive1->Set(0);
 				rDrive1->Set(0);
 				lDrive2->Set(0);
 				rDrive2->Set(0);
 				driveStick->SetRumble(driveStick->kLeftRumble, 0.5);
 				driveStick->SetRumble(driveStick->kRightRumble, 0.5);
-				Wait(0.5);
+				Wait(1);
 				william->Set(DoubleSolenoid::Value::kReverse);
-			}
-		} else {
-			winch->Set(0);
+				Wait(0.1);
+				william->Set(DoubleSolenoid::Value::kForward);
+
+				pos->Set(DoubleSolenoid::Value::kReverse);
 		}
-
-		if(switch1->Get() == false) {
-			shooterPos = 0;
-		} else {
-			shooterPos = shooterPos - winch->Get();
-		}
-
-		//lw->Run();
-
-/*		buttonVal0 = SmartDashboard::GetBoolean("DB/Button 0", false);
-		buttonVal1 = SmartDashboard::GetBoolean("DB/Button 1", false);
-		buttonVal2 = SmartDashboard::GetBoolean("DB/Button 2", false);
-		buttonVal3 = SmartDashboard::GetBoolean("DB/Button 3", false);
-
-		if(buttonVal0) {
-			william->Set(DoubleSolenoid::Value::kReverse);
-		} else if(buttonVal1) {
-			william->Set(DoubleSolenoid::Value::kForward);
-		}*/
-
 	}
 
 	void DisabledPeriodic()
