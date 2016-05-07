@@ -11,15 +11,15 @@ class Robot: public IterativeRobot
 	CANTalon *arm1;
 	CANTalon *shooter1;
 	CANTalon *shooter2;
-	CANTalon *liftArm;
-	Talon *winch;
+	CANTalon *winch;
+	Talon *winch2;
 	//CANTalon *flipper;
 	//CANTalon *flipper2;
 	DoubleSolenoid *lShifter;
 	//DoubleSolenoid *rShifter;
 	DoubleSolenoid *william;
 	DoubleSolenoid *flipper;
-	DoubleSolenoid *lifter;
+	DoubleSolenoid *pos;
 	//DoubleSolenoid *flipper2;
 	Joystick *driveStick;
 	Joystick *manipulatorStick;
@@ -28,7 +28,7 @@ class Robot: public IterativeRobot
 	DigitalInput *switch2;
 	DigitalInput *switch3;
 	DigitalInput *switch4;
-	AnalogInput *optical;
+	DigitalInput *optical;
 	AnalogInput *sonic;
 	ADXRS450_Gyro *gyro;
 	ADXL362 *accel;
@@ -52,14 +52,15 @@ public:
 		arm1 = new CANTalon(5);
 		shooter1 = new CANTalon(6);
 		shooter2 = new CANTalon(7);
-		liftArm = new CANTalon(8);
-		winch = new Talon(0);
+		winch = new CANTalon(8);
+		winch2 = new Talon(0);
 		//flipper = new CANTalon(7);
 		//flipper2 = new CANTalon(8);
 		lShifter = new DoubleSolenoid(0,1);
 		william = new DoubleSolenoid(2,3);
 		flipper = new DoubleSolenoid(4,5);
-		lifter = new DoubleSolenoid(6,7);
+		pos = new DoubleSolenoid(6,7);
+		//rShifter = new DoubleSolenoid(6,7);
 		driveStick = new Joystick(0);
 		manipulatorStick = new Joystick(1);
 		steven = new Compressor(0);
@@ -67,7 +68,7 @@ public:
 		switch2 = new DigitalInput(1);
 		switch3 = new DigitalInput(2);
 		switch4 = new DigitalInput(3);
-		optical = new AnalogInput(1);
+		optical = new DigitalInput(4);
 		sonic = new AnalogInput(0);
 		gyro = new ADXRS450_Gyro();
 		accel = new ADXL362();
@@ -423,21 +424,21 @@ private:
 			}
 
 			/*if(shooterPos < 90) {
-				liftArm->Set(-1);
+				winch->Set(-1);
 			} else */if(fabs(turnDistance) < 1.5) {
-				liftArm->Set(0);
+				winch->Set(0);
 				shooter1->Set(-0.75);
 				shooter2->Set(0.75);
 				Wait(0.5);
 				william->Set(DoubleSolenoid::Value::kReverse);
 			} else {
-				liftArm->Set(-0.05);
+				winch->Set(-0.05);
 			}
 
 			if(switch1->Get() == false) {
 				shooterPos = 0;
 			} else {
-				shooterPos = shooterPos - liftArm->Get();
+				shooterPos = shooterPos - winch->Get();
 			}
 			Wait(0.005);
 
@@ -542,15 +543,14 @@ private:
 		}
 
 		if(driveStick->GetPOV() == 0) {
-			lifter->Set(DoubleSolenoid::Value::kForward);
-			/*dUp = true;
+			dUp = true;
 			dRight = false;
 			dDown = false;
 			dLeft = false;
 			dUpR = false;
 			dUpL = false;
 			dDownR = false;
-			dDownL = false;*/
+			dDownL = false;
 		} else if(driveStick->GetPOV() == 90) {
 			dUp = false;
 			dRight = true;
@@ -561,15 +561,14 @@ private:
 			dDownR = false;
 			dDownL = false;
 		} else if(driveStick->GetPOV() == 180) {
-			lifter->Set(DoubleSolenoid::Value::kReverse);
-			/*dUp = false;
+			dUp = false;
 			dRight = false;
 			dDown = true;
 			dLeft = false;
 			dUpR = false;
 			dUpL = false;
 			dDownR = false;
-			dDownL = false;*/
+			dDownL = false;
 		} else if(driveStick->GetPOV() == 270) {
 			dUp = false;
 			dRight = false;
@@ -649,13 +648,8 @@ private:
 			//rShifter->Set(DoubleSolenoid::Value::kReverse);
 		}
 
-		if (driveStick->GetPOV() == 0) {
-		lifter->Set(DoubleSolenoid::Value::kForward);
-		} else if (driveStick->GetPOV() == 180) {
-			lifter->Set(DoubleSolenoid::Value::kReverse);
-		}
 
-		/*if(driveStick->GetRawButton(6)) {
+		if(driveStick->GetRawButton(6)) {
 			if(rightY > threshold && switch3->Get()) {
 				arm1->Set(rightY / 1.5);
 			} else if(rightY < threshold && switch4->Get()) {
@@ -665,19 +659,15 @@ private:
 			}
 		} else if(manipulatorStick->GetRawButton(6)) {
 			if(mRightY > threshold && switch3->Get()) {
-				//arm1->Set(mRightY / 1.5);
-				lifter->Set(DoubleSolenoid::Value::kForward);
+				arm1->Set(mRightY / 1.5);
 			} else if(mRightY < threshold && switch4->Get()) {
-				//arm1->Set(mRightY / 2);
-				lifter->Set(DoubleSolenoid::Value::kForward);
+				arm1->Set(mRightY / 2);
 			} else {
-				//arm1->Set(0);
-				lifter->Set(DoubleSolenoid::Value::kReverse);
+				arm1->Set(0);
 			}
 		} else {
-			//arm1->Set(0);
-			lifter->Set(DoubleSolenoid::Value::kReverse);
-		}*/
+			arm1->Set(0);
+		}
 /*		if(manipulatorStick->GetRawButton(5)) {
 			arm2->Set(mLeftY);
 		} else if(driveStick->GetRawButton(5)) {
@@ -826,7 +816,7 @@ private:
 					}
 
 			if(COGX > 165 && COGX < 195) {
-						liftArm->Set(0);
+						winch->Set(0);
 						shooter1->Set(-0.8);
 						shooter2->Set(0.8);
 						shootCount = shootCount + 1;
@@ -841,7 +831,7 @@ private:
 							william->Set(DoubleSolenoid::Value::kReverse);
 						}
 					} else {
-						liftArm->Set(0);
+						winch->Set(0);
 					}
 			//driveStick->SetRumble(driveStick->kLeftRumble, 0.5);
 			//driveStick->SetRumble(driveStick->kRightRumble, 0.5);
@@ -872,50 +862,52 @@ private:
 		}
 
 		/*if(driveStick->GetRawButton(8) && switch1->Get()) {
-			liftArm->Set(0.5);
+			winch->Set(0.5);
 		} else if(driveStick->GetRawButton(7) && switch2->Get()) {
-			liftArm->Set(-0.5);
+			winch->Set(-0.5);
 		} else if(manipulatorStick->GetRawButton(8) && switch1->Get()) {
-			liftArm->Set(0.5);
+			winch->Set(0.5);
 		} else if(manipulatorStick->GetRawButton(7) && switch2->Get()) {
-			liftArm->Set(-0.5);
+			winch->Set(-0.5);
 		} else */
 		if(dUp && switch2->Get()) {
-			liftArm->Set(0.5);
+//			winch->Set(0.5);
+			pos->Set(DoubleSolenoid::Value::kReverse);
 		} else if(dDown && switch1->Get()) {
-			liftArm->Set(-0.5);
+//			winch->Set(-0.5);
+			pos->Set(DoubleSolenoid::Value::kForward);
 		} else if((manipulatorStick->GetPOV() == 0) && switch2->Get()) {
-			liftArm->Set(0.5);
+			winch->Set(0.5);
 		} else if((manipulatorStick->GetPOV() == 180) && switch1->Get()) {
-			liftArm->Set(-0.5);
+			winch->Set(-0.5);
 		} else if(fabs(mLeftY) > threshold) {
 			if(mLeftY > threshold && switch1->Get()) {
-				liftArm->Set(mLeftY);
+				winch->Set(mLeftY);
 			} else if(mLeftY < threshold && switch2->Get()) {
-				liftArm->Set(mLeftY);
+				winch->Set(mLeftY);
 			}
 		/*} else if(cruise && switch2->Get()) {
-			liftArm->Set(-0.05);*/
+			winch->Set(-0.05);*/
 		} else {
-			liftArm->Set(0);
+			winch->Set(0);
 		}
 
 		if(driveStick->GetRawButton(7)){
-			winch->Set(-1);
+			winch2->Set(-1);
 		} else if(driveStick->GetRawButton(8)){
-			winch->Set(1);
+			winch2->Set(1);
 		} else if(manipulatorStick->GetRawButton(7)){
-			winch->Set(-1);
+			winch2->Set(-1);
 		} else if(manipulatorStick->GetRawButton(8)){
-			winch->Set(1);
+			winch2->Set(1);
 		} else {
-			winch->Set(-0.05);
+			winch2->Set(-0.05);
 		}
 
 /*		if(switch1->Get() == false) {
 			shooterPos = 0;
 		} else {
-			shooterPos = shooterPos - liftArm->Get();
+			shooterPos = shooterPos - winch->Get();
 		}*/
 
 		/*if(pencoder->Get()) {
@@ -1023,9 +1015,9 @@ private:
 		}
 
 		/*if(shooterPos < 70) {
-			liftArm->Set(-1);
+			winch->Set(-1);
 		} else */if(COGX > 165 && COGX < 195) {
-			liftArm->Set(0);
+			winch->Set(0);
 			shooter1->Set(-0.8);
 			shooter2->Set(0.8);
 			shootCount = shootCount + 1;
@@ -1040,13 +1032,13 @@ private:
 				william->Set(DoubleSolenoid::Value::kReverse);
 			}
 		} else {
-			liftArm->Set(0);
+			winch->Set(0);
 		}
 
 		if(switch1->Get() == false) {
 			shooterPos = 0;
 		} else {
-			shooterPos = shooterPos - liftArm->Get();
+			shooterPos = shooterPos - winch->Get();
 		}
 
 		//lw->Run();
@@ -1076,8 +1068,14 @@ private:
 		SmartDashboard::PutNumber("DB/Slider 3", gyro->GetAngle());
 //		SmartDashboard::PutNumber("DB/Slider 2", accel->GetY());
 //		SmartDashboard::PutNumber("DB/Slider 0", accel->GetX());
-		SmartDashboard::PutNumber("DB/Slider 0", optical->GetVoltage());
+//		SmartDashboard::PutNumber("DB/Slider 0", optical->Get());
 		SmartDashboard::PutNumber("DB/Slider 1", accel->GetY());
+
+		if(optical->Get() == true) {
+			SmartDashboard::PutNumber("DB/Slider 0", 5);
+		} else {
+			SmartDashboard::PutNumber("DB/Slider 0", 0);
+		}
 
 		driveStick->SetRumble(driveStick->kLeftRumble, 0);
 		driveStick->SetRumble(driveStick->kRightRumble, 0);
@@ -1276,7 +1274,7 @@ private:
 
 //		while(IsDisabled())
 //		{
-			Wait(0.005);
+//			Wait(0.005);
 //		}
 	}
 };
