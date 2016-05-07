@@ -151,6 +151,7 @@ private:
 	void RobotInit() override
 	{
 		printf("Good Morning! ");
+		roboRealm = NetworkTable::GetTable("SmartDashboard");
 
 		/*frame = imaqCreateImage(IMAQ_IMAGE_RGB, 0);
 		imaqColorThreshold(frame2, frame, 0, 0, Range(0), Range(255), Range(0);*/
@@ -940,10 +941,13 @@ private:
 
 	void TestInit()
 	{
-		COGX = SmartDashboard::GetNumber("COG_X", -1.0) + 55;
-		COGY = SmartDashboard::GetNumber("COG_Y", -1.0);
+		COGX = roboRealm->GetNumber("COG_X", -1.0);
+		COGY = roboRealm->GetNumber("COG_Y", -1.0);
+		//COGX = SmartDashboard::GetNumber("COG_X", -1.0) + 55;
+		//COGY = SmartDashboard::GetNumber("COG_Y", -1.0);
 		centerPos = 320 / 2 - COGX;
 		turnDistance = centerPos / 10;
+		SmartDashboard::PutNumber("String 4", turnDistance);
 		gyro->Reset();
 		shooter1->Set(0);
 		shooter2->Set(0);
