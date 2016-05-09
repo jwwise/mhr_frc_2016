@@ -142,7 +142,7 @@ private:
 	double turnDistance = 0;
 	double shooterPos = 0;
 	double shootCount = 0;
-	double targetCenter = 150;
+	double targetCenter = 150; // change me for the target center *note camera is offset
 	double minTargetmargin = 6;
 	double maxTargetmargin = -6;
 	std::shared_ptr<NetworkTable> roboRealm;
